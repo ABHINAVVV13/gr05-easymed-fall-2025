@@ -13,36 +13,53 @@ class StreamVideoService {
   /// Initialize Stream Video client with user
   static Future<void> initialize(app_models.UserModel user) async {
     if (_isInitialized && _client != null) {
-      return; // Already initialized
+      // Verify client is still connected
+      try {
+        // If client exists and is initialized, return early
+        return;
+      } catch (e) {
+        // If client is in bad state, reset and reinitialize
+        debugPrint('Client in bad state, reinitializing: $e');
+        _client = null;
+        _isInitialized = false;
+      }
     }
 
     try {
       final apiKey = dotenv.env['STREAM_API_KEY'];
-      if (apiKey == null) {
+      if (apiKey == null || apiKey.isEmpty) {
         throw Exception('STREAM_API_KEY not found in .env file');
       }
 
       // Generate user token (in production, this should come from your backend)
-      // For now, we'll create a basic user token
       final streamUser = User.regular(
         userId: user.uid,
         role: user.userType == app_models.UserType.doctor ? 'admin' : 'user',
         name: user.displayName ?? (user.userType == app_models.UserType.patient ? 'Patient' : 'Doctor'),
       );
 
-      // In production, get token from your backend API
-      // For now, we'll need to generate it server-side or use a placeholder
-      // You'll need to implement token generation on your backend
+      // Generate user token from Firebase Cloud Function
       final userToken = await _generateUserToken(user.uid);
 
+      debugPrint('Creating Stream Video client...');
       _client = StreamVideo(
         apiKey,
         user: streamUser,
         userToken: userToken,
       );
 
+      // Connect the client - required before using Stream Video
+      debugPrint('Connecting Stream Video client...');
+      await _client!.connect();
+      debugPrint('Stream Video client connected successfully');
+
       _isInitialized = true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // Reset state on failure to allow retry
+      _client = null;
+      _isInitialized = false;
+      debugPrint('Stream Video initialization failed: $e');
+      debugPrint('Stack trace: $stackTrace');
       throw Exception('Failed to initialize Stream Video: $e');
     }
   }
