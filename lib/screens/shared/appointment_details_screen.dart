@@ -466,8 +466,7 @@ class AppointmentDetailsScreen extends ConsumerWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: Navigate to waiting room when implemented
-                        // context.push('/patient-waiting-room/${appointment.id}');
+                        context.push('/patient-waiting-room/${appointment.id}');
                       },
                       icon: const Icon(Icons.meeting_room),
                       label: const Text('Join Waiting Room'),

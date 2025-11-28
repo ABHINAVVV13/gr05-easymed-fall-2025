@@ -77,8 +77,7 @@ class DoctorAppointmentsScreen extends ConsumerWidget {
                       ],
                     ),
                     onPressed: () {
-                      // TODO: Navigate to waiting room when implemented
-                      // context.push('/doctor-waiting-room');
+                      context.push('/doctor-waiting-room');
                     },
                     tooltip: 'Waiting Room',
                   );
