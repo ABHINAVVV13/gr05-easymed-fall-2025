@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// TODO: Uncomment when router is implemented in Branch 4
+// import 'package:go_router/go_router.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 
@@ -46,6 +47,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       // Check if email exists FIRST - show visual feedback, NO errors
       final exists = await authService.emailExists(email);
       if (exists) {
+        if (!mounted) return;
         setState(() => _isLoading = false);
         
         // Show visual feedback - NO errors thrown
@@ -136,6 +138,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         // Handle Firebase Auth "email-already-in-use" error
         // (Email might exist in Firebase Auth but not Firestore)
         if (e.code == 'email-already-in-use') {
+          if (!mounted) return;
           setState(() => _isLoading = false);
           
           // Show visual feedback - same as Firestore check
@@ -627,7 +630,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           // Loading overlay
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               child: const Center(
                 child: Card(
                   child: Padding(
