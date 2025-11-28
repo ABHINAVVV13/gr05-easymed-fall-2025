@@ -16,9 +16,9 @@ import '../screens/doctor/doctor_profile_setup_screen.dart';
 // import '../screens/shared/appointment_details_screen.dart';
 import '../screens/patient/medical_reports_screen.dart';
 import '../screens/shared/report_details_screen.dart';
-// import '../screens/doctor/create_prescription_screen.dart';
-// import '../screens/patient/patient_prescriptions_screen.dart';
-// import '../screens/shared/prescription_details_screen.dart';
+import '../screens/doctor/create_prescription_screen.dart';
+import '../screens/patient/patient_prescriptions_screen.dart';
+import '../screens/shared/prescription_details_screen.dart';
 // import '../screens/doctor/doctor_patients_screen.dart';
 // import '../screens/patient/patient_waiting_room_screen.dart';
 // import '../screens/doctor/doctor_waiting_room_screen.dart';
@@ -212,11 +212,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'medical-reports',
         builder: (context, state) => const MedicalReportsScreen(),
       ),
-      // GoRoute(
-      //   path: '/patient-prescriptions',
-      //   name: 'patient-prescriptions',
-      //   builder: (context, state) => const PatientPrescriptionsScreen(),
-      // ),
+      GoRoute(
+        path: '/patient-prescriptions',
+        name: 'patient-prescriptions',
+        builder: (context, state) => const PatientPrescriptionsScreen(),
+      ),
       // GoRoute(
       //   path: '/patient-waiting-room/:appointmentId',
       //   name: 'patient-waiting-room',
@@ -253,18 +253,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       //   name: 'doctor-waiting-room',
       //   builder: (context, state) => const DoctorWaitingRoomScreen(),
       // ),
-      // GoRoute(
-      //   path: '/create-prescription',
-      //   name: 'create-prescription',
-      //   builder: (context, state) {
-      //     final appointmentId = state.uri.queryParameters['appointmentId'];
-      //     final patientId = state.uri.queryParameters['patientId'];
-      //     return CreatePrescriptionScreen(
-      //       appointmentId: appointmentId,
-      //       patientId: patientId,
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        path: '/create-prescription',
+        name: 'create-prescription',
+        builder: (context, state) {
+          final appointmentId = state.uri.queryParameters['appointmentId'];
+          final patientId = state.uri.queryParameters['patientId'];
+          return CreatePrescriptionScreen(
+            appointmentId: appointmentId,
+            patientId: patientId,
+          );
+        },
+      ),
       // Shared routes
       // GoRoute(
       //   path: '/appointment-details/:appointmentId',
@@ -282,14 +282,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           return ReportDetailsScreen(reportId: reportId);
         },
       ),
-      // GoRoute(
-      //   path: '/prescription-details/:prescriptionId',
-      //   name: 'prescription-details',
-      //   builder: (context, state) {
-      //     final prescriptionId = state.pathParameters['prescriptionId']!;
-      //     return PrescriptionDetailsScreen(prescriptionId: prescriptionId);
-      //   },
-      // ),
+      GoRoute(
+        path: '/prescription-details/:prescriptionId',
+        name: 'prescription-details',
+        builder: (context, state) {
+          final prescriptionId = state.pathParameters['prescriptionId']!;
+          return PrescriptionDetailsScreen(prescriptionId: prescriptionId);
+        },
+      ),
       // GoRoute(
       //   path: '/video-call/:appointmentId',
       //   name: 'video-call',
