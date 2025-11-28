@@ -1,0 +1,171 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow querying by email to check if email exists (for signup validation)
+      // This allows unauthenticated users to check email availability during signup
+      allow list: if true; // Allow queries to check email existence
+      
+      // Users can read their own document
+      allow get: if isOwner(userId);
+      
+      // Users can create their own document (during signup)
+      // This works for both patients and doctors
+      allow create: if isAuthenticated() 
+                    && request.auth.uid == userId
+                    && request.resource.data.keys().hasAll(['uid', 'email', 'userType', 'createdAt'])
+                    && request.resource.data.uid == userId
+                    && request.resource.data.email == request.auth.token.email
+                    && request.resource.data.userType is string
+                    && (request.resource.data.userType == 'patient' || request.resource.data.userType == 'doctor' || request.resource.data.userType == 'admin');
+      
+      // Users can update their own document
+      allow update: if isOwner(userId)
+                    && request.resource.data.uid == userId
+                    && request.resource.data.email == resource.data.email; // Email cannot be changed
+      
+      // Users cannot delete their own account (admins only, to be implemented later)
+      allow delete: if false;
+      
+      // Doctors can read patient profiles (for consultations and appointments)
+      // This rule only applies if the requesting user is a doctor
+      allow get: if isAuthenticated() 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'doctor'
+                  && resource.data.userType == 'patient';
+      
+      // Patients can read doctor profiles (for booking appointments)
+      // This rule only applies if the requesting user is a patient
+      allow get: if isAuthenticated() 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'patient'
+                  && resource.data.userType == 'doctor';
+    }
+    
+    // Appointments collection
+    match /appointments/{appointmentId} {
+      // Allow reading individual appointments if user is patient or doctor
+      // Also allow streams (snapshots) for real-time updates
+      allow read: if isAuthenticated() 
+                  && (resource.data.patientId == request.auth.uid 
+                      || resource.data.doctorId == request.auth.uid);
+      
+      // Allow querying appointments for availability checking
+      // Patients can query by doctorId to check availability
+      // Doctors can query their own appointments
+      allow list: if isAuthenticated();
+      
+      // Allow creating appointments (patients only)
+      allow create: if isAuthenticated() 
+                   && request.resource.data.patientId == request.auth.uid
+                   && request.resource.data.keys().hasAll(['id', 'patientId', 'doctorId', 'scheduledTime', 'type', 'status', 'createdAt']);
+      
+      // Allow updating appointments (patient or doctor can update their own)
+      allow update: if isAuthenticated() 
+                   && (resource.data.patientId == request.auth.uid 
+                       || resource.data.doctorId == request.auth.uid);
+      
+      // Allow deleting appointments (patients can cancel)
+      allow delete: if isAuthenticated() 
+                   && resource.data.patientId == request.auth.uid;
+    }
+    
+    // Prescriptions collection
+    match /prescriptions/{prescriptionId} {
+      // Patients and doctors can read prescriptions they're associated with
+      allow read: if isAuthenticated() 
+                  && (resource.data.patientId == request.auth.uid 
+                      || resource.data.doctorId == request.auth.uid);
+      
+      // Allow querying prescriptions
+      allow list: if isAuthenticated();
+      
+      // Only doctors can create prescriptions
+      allow create: if isAuthenticated() 
+                   && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'doctor'
+                   && request.resource.data.doctorId == request.auth.uid
+                   && request.resource.data.keys().hasAll(['id', 'patientId', 'doctorId', 'medications', 'prescribedDate', 'createdAt']);
+      
+      // Only doctors can update their own prescriptions
+      allow update: if isAuthenticated() 
+                   && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'doctor'
+                   && resource.data.doctorId == request.auth.uid;
+      
+      // Prescriptions should not be deleted
+      allow delete: if false;
+    }
+    
+        // Medical reports collection
+        match /medicalReports/{reportId} {
+          // Patients can read their own reports
+          // Doctors can read reports they've reviewed or are assigned to
+          allow read: if isAuthenticated() 
+                      && (resource.data.patientId == request.auth.uid 
+                          || resource.data.reviewedBy == request.auth.uid
+                          || resource.data.doctorId == request.auth.uid);
+          
+          // Allow querying reports
+          allow list: if isAuthenticated();
+          
+          // Patients can create their own reports
+          allow create: if isAuthenticated() 
+                       && request.resource.data.patientId == request.auth.uid
+                       && request.resource.data.keys().hasAll(['id', 'patientId', 'title', 'type', 'fileUrl', 'fileName', 'reportDate', 'uploadedAt']);
+          
+          // Patients can update their own reports
+          // Doctors can update reports they're reviewing
+          allow update: if isAuthenticated() 
+                       && (resource.data.patientId == request.auth.uid
+                           || (request.resource.data.reviewedBy == request.auth.uid
+                               && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                               && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'doctor'));
+          
+          // Patients can delete their own reports
+          allow delete: if isAuthenticated() 
+                       && resource.data.patientId == request.auth.uid;
+        }
+        
+        // Questionnaires collection
+        match /questionnaires/{questionnaireId} {
+          // Patients can read their own questionnaires
+          allow read: if isAuthenticated() 
+                      && resource.data.patientId == request.auth.uid;
+          
+          // Allow querying questionnaires
+          allow list: if isAuthenticated();
+          
+          // Patients can create their own questionnaires
+          allow create: if isAuthenticated() 
+                       && request.resource.data.patientId == request.auth.uid
+                       && request.resource.data.keys().hasAll(['id', 'patientId', 'symptoms', 'createdAt']);
+          
+          // Patients can update their own questionnaires
+          allow update: if isAuthenticated() 
+                       && resource.data.patientId == request.auth.uid;
+          
+          // Patients can delete their own questionnaires
+          allow delete: if isAuthenticated() 
+                       && resource.data.patientId == request.auth.uid;
+        }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
