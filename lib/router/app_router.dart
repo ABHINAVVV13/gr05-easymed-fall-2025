@@ -14,8 +14,8 @@ import '../screens/patient/symptom_questionnaire_screen.dart';
 import '../screens/doctor/doctor_profile_setup_screen.dart';
 // import '../screens/doctor/doctor_appointments_screen.dart';
 // import '../screens/shared/appointment_details_screen.dart';
-// import '../screens/patient/medical_reports_screen.dart';
-// import '../screens/shared/report_details_screen.dart';
+import '../screens/patient/medical_reports_screen.dart';
+import '../screens/shared/report_details_screen.dart';
 // import '../screens/doctor/create_prescription_screen.dart';
 // import '../screens/patient/patient_prescriptions_screen.dart';
 // import '../screens/shared/prescription_details_screen.dart';
@@ -207,11 +207,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       //   name: 'patient-appointments',
       //   builder: (context, state) => const PatientAppointmentsScreen(),
       // ),
-      // GoRoute(
-      //   path: '/medical-reports',
-      //   name: 'medical-reports',
-      //   builder: (context, state) => const MedicalReportsScreen(),
-      // ),
+      GoRoute(
+        path: '/medical-reports',
+        name: 'medical-reports',
+        builder: (context, state) => const MedicalReportsScreen(),
+      ),
       // GoRoute(
       //   path: '/patient-prescriptions',
       //   name: 'patient-prescriptions',
@@ -274,14 +274,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       //     return AppointmentDetailsScreen(appointmentId: appointmentId);
       //   },
       // ),
-      // GoRoute(
-      //   path: '/report-details/:reportId',
-      //   name: 'report-details',
-      //   builder: (context, state) {
-      //     final reportId = state.pathParameters['reportId']!;
-      //     return ReportDetailsScreen(reportId: reportId);
-      //   },
-      // ),
+      GoRoute(
+        path: '/report-details/:reportId',
+        name: 'report-details',
+        builder: (context, state) {
+          final reportId = state.pathParameters['reportId']!;
+          return ReportDetailsScreen(reportId: reportId);
+        },
+      ),
       // GoRoute(
       //   path: '/prescription-details/:prescriptionId',
       //   name: 'prescription-details',
