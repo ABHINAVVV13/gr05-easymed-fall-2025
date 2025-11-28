@@ -389,8 +389,7 @@ class _WaitingPatientCard extends ConsumerWidget {
         
         // Navigate to video call screen
         if (context.mounted) {
-          // TODO: Navigate to video call when implemented
-          // context.push('/video-call/${appointment.id}');
+          context.push('/video-call/${appointment.id}');
         }
       }
     } catch (e) {
