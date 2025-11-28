@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "717360332394",
+    "project_id": "gr05-easymed-fall-2025",
+    "storage_bucket": "gr05-easymed-fall-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717360332394:android:824cacd1ea4ee524e85413",
+        "android_client_info": {
+          "package_name": "com.example.easymed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "717360332394-34o4la6qd8sm3emfkre0uimt2l07u3uq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.easymed",
+            "certificate_hash": "04f77e14dbd2607d3d9cf33ef476a408c022eddb"
+          }
+        },
+        {
+          "client_id": "717360332394-79cinmgrr1f51s44tipm5j7mosa45sul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAagiGW1sIZsbxA6J1xWrxVZvr19wGIp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "717360332394-79cinmgrr1f51s44tipm5j7mosa45sul.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "717360332394-dau5nfefd4epfnlkv9c5i8h5148ja9s7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.easymed"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
