@@ -18,7 +18,7 @@ import '../screens/shared/report_details_screen.dart';
 import '../screens/doctor/create_prescription_screen.dart';
 import '../screens/patient/patient_prescriptions_screen.dart';
 import '../screens/shared/prescription_details_screen.dart';
-// import '../screens/doctor/doctor_patients_screen.dart';
+import '../screens/doctor/doctor_patients_screen.dart';
 import '../screens/patient/patient_waiting_room_screen.dart';
 import '../screens/doctor/doctor_waiting_room_screen.dart';
 import '../screens/shared/video_call_screen.dart';
@@ -227,11 +227,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'doctor-appointments',
         builder: (context, state) => const DoctorAppointmentsScreen(),
       ),
-      // GoRoute(
-      //   path: '/doctor-patients',
-      //   name: 'doctor-patients',
-      //   builder: (context, state) => const DoctorPatientsScreen(),
-      // ),
+      GoRoute(
+        path: '/doctor-patients',
+        name: 'doctor-patients',
+        builder: (context, state) => const DoctorPatientsScreen(),
+      ),
       GoRoute(
         path: '/doctor-waiting-room',
         name: 'doctor-waiting-room',
