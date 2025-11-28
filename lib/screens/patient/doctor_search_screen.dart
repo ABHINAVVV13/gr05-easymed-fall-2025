@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/user_model.dart';
 import '../../services/doctor_service.dart';
+import '../../constants/doctor_constants.dart';
 
 final doctorServiceProvider = Provider<DoctorService>((ref) {
   return DoctorService();
@@ -135,14 +136,11 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     filled: true,
                     fillColor: Colors.grey.shade50,
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'All', child: Text('All Specializations')),
-                    DropdownMenuItem(value: 'Cardiology', child: Text('Cardiology')),
-                    DropdownMenuItem(value: 'Dermatology', child: Text('Dermatology')),
-                    DropdownMenuItem(value: 'Pediatrics', child: Text('Pediatrics')),
-                    DropdownMenuItem(value: 'Orthopedics', child: Text('Orthopedics')),
-                    DropdownMenuItem(value: 'Neurology', child: Text('Neurology')),
-                    DropdownMenuItem(value: 'General Medicine', child: Text('General Medicine')),
+                  items: [
+                    const DropdownMenuItem(value: 'All', child: Text('All Specializations')),
+                    ...DoctorConstants.specializations.map(
+                      (spec) => DropdownMenuItem(value: spec, child: Text(spec)),
+                    ),
                   ],
                   onChanged: (value) {
                     if (value != null) {

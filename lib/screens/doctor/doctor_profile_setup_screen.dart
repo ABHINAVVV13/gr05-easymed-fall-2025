@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../constants/doctor_constants.dart';
 
 class DoctorProfileSetupScreen extends ConsumerStatefulWidget {
   final bool isEditing;
@@ -29,24 +30,16 @@ class _DoctorProfileSetupScreenState
   bool _isLoading = false;
   String? _selectedSpecialization;
   final Map<String, Map<String, dynamic>> _workingHours = {
-    'Monday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
-    'Tuesday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
-    'Wednesday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
-    'Thursday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
-    'Friday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
-    'Saturday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
-    'Sunday': {'enabled': false, 'start': '09:00', 'end': '17:00'},
+    for (final day in DoctorConstants.weekDays)
+      day: {
+        'enabled': false,
+        'start': DoctorConstants.defaultStartTime,
+        'end': DoctorConstants.defaultEndTime,
+      },
   };
 
-  // Specialization options - must match doctor_search_screen.dart
-  static const List<String> specializations = [
-    'Cardiology',
-    'Dermatology',
-    'Pediatrics',
-    'Orthopedics',
-    'Neurology',
-    'General Medicine',
-  ];
+  // Use shared constants for specializations
+  static const List<String> specializations = DoctorConstants.specializations;
 
   // Normalize specialization value to match dropdown options
   // Handles typos and case mismatches
@@ -104,8 +97,8 @@ class _DoctorProfileSetupScreenState
           if (value is Map) {
             _workingHours[day] = {
               'enabled': value['enabled'] ?? false,
-              'start': value['start'] ?? '09:00',
-              'end': value['end'] ?? '17:00',
+              'start': value['start'] ?? DoctorConstants.defaultStartTime,
+              'end': value['end'] ?? DoctorConstants.defaultEndTime,
             };
           }
         });
