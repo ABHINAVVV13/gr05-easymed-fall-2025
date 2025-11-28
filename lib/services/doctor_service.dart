@@ -7,19 +7,32 @@ class DoctorService {
   // Search doctors by name
   Future<List<UserModel>> searchDoctorsByName(String query) async {
     try {
+      if (query.trim().isEmpty) {
+        return [];
+      }
+
       final snapshot = await _firestore
           .collection('users')
           .where('userType', isEqualTo: 'doctor')
           .get();
 
       final doctors = snapshot.docs
-          .map((doc) => UserModel.fromMap(doc.data()))
+          .map((doc) {
+            try {
+              return UserModel.fromMap(doc.data());
+            } catch (e) {
+              // Skip invalid doctor documents
+              return null;
+            }
+          })
+          .whereType<UserModel>()
           .where((doctor) {
-        final name = doctor.displayName?.toLowerCase() ?? '';
-        final email = doctor.email.toLowerCase();
-        final searchQuery = query.toLowerCase();
-        return name.contains(searchQuery) || email.contains(searchQuery);
-      }).toList();
+            final name = doctor.displayName?.toLowerCase() ?? '';
+            final email = doctor.email.toLowerCase();
+            final searchQuery = query.trim().toLowerCase();
+            return name.contains(searchQuery) || email.contains(searchQuery);
+          })
+          .toList();
 
       return doctors;
     } catch (e) {
@@ -30,6 +43,10 @@ class DoctorService {
   // Search doctors by specialization
   Future<List<UserModel>> searchDoctorsBySpecialization(String specialization) async {
     try {
+      if (specialization.trim().isEmpty) {
+        return [];
+      }
+
       final snapshot = await _firestore
           .collection('users')
           .where('userType', isEqualTo: 'doctor')
@@ -37,7 +54,15 @@ class DoctorService {
           .get();
 
       return snapshot.docs
-          .map((doc) => UserModel.fromMap(doc.data()))
+          .map((doc) {
+            try {
+              return UserModel.fromMap(doc.data());
+            } catch (e) {
+              // Skip invalid doctor documents
+              return null;
+            }
+          })
+          .whereType<UserModel>()
           .toList();
     } catch (e) {
       rethrow;
@@ -53,7 +78,15 @@ class DoctorService {
           .get();
 
       return snapshot.docs
-          .map((doc) => UserModel.fromMap(doc.data()))
+          .map((doc) {
+            try {
+              return UserModel.fromMap(doc.data());
+            } catch (e) {
+              // Skip invalid doctor documents
+              return null;
+            }
+          })
+          .whereType<UserModel>()
           .toList();
     } catch (e) {
       rethrow;
@@ -85,7 +118,15 @@ class DoctorService {
           .get();
 
       return snapshot.docs
-          .map((doc) => UserModel.fromMap(doc.data()))
+          .map((doc) {
+            try {
+              return UserModel.fromMap(doc.data());
+            } catch (e) {
+              // Skip invalid doctor documents
+              return null;
+            }
+          })
+          .whereType<UserModel>()
           .where((doctor) => doctor.workingHours != null && doctor.workingHours!.isNotEmpty)
           .toList();
     } catch (e) {

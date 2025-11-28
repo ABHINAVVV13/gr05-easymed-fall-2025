@@ -44,16 +44,23 @@ class DoctorSearchNotifier extends StateNotifier<AsyncValue<List<UserModel>>> {
       state = AsyncValue.data(doctors);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
+      rethrow; // Re-throw to allow error handling in UI
     }
   }
 
   Future<void> searchBySpecialization(String specialization) async {
+    if (specialization == 'All') {
+      _loadAllDoctors();
+      return;
+    }
+
     try {
       state = const AsyncValue.loading();
       final doctors = await _doctorService.searchDoctorsBySpecialization(specialization);
       state = AsyncValue.data(doctors);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
+      rethrow; // Re-throw to allow error handling in UI
     }
   }
 
