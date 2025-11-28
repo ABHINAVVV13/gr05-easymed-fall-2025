@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../models/symptom_questionnaire_model.dart';
 import '../models/user_model.dart';
 
 class AIService {
