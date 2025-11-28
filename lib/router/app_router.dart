@@ -9,7 +9,7 @@ import '../screens/patient/patient_profile_setup_screen.dart';
 import '../screens/patient/doctor_search_screen.dart';
 import '../screens/patient/doctor_details_screen.dart';
 import '../screens/patient/symptom_questionnaire_screen.dart';
-// import '../screens/patient/appointment_booking_screen.dart';
+import '../screens/patient/appointment_booking_screen.dart';
 // import '../screens/patient/patient_appointments_screen.dart';
 import '../screens/doctor/doctor_profile_setup_screen.dart';
 // import '../screens/doctor/doctor_appointments_screen.dart';
@@ -190,18 +190,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'symptom-questionnaire',
         builder: (context, state) => const SymptomQuestionnaireScreen(),
       ),
-      // GoRoute(
-      //   path: '/book-appointment/:doctorId',
-      //   name: 'book-appointment',
-      //   builder: (context, state) {
-      //     final doctorId = state.pathParameters['doctorId']!;
-      //     final isInstant = state.uri.queryParameters['instant'] == 'true';
-      //     if (doctorId.isEmpty) {
-      //       return const HomeScreen();
-      //     }
-      //     return AppointmentBookingScreen(doctorId: doctorId, isInstant: isInstant);
-      //   },
-      // ),
+      GoRoute(
+        path: '/book-appointment/:doctorId',
+        name: 'book-appointment',
+        builder: (context, state) {
+          final doctorId = state.pathParameters['doctorId']!;
+          final isInstant = state.uri.queryParameters['instant'] == 'true';
+          if (doctorId.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('Invalid doctor ID')),
+            );
+          }
+          return AppointmentBookingScreen(doctorId: doctorId, isInstant: isInstant);
+        },
+      ),
       // GoRoute(
       //   path: '/patient-appointments',
       //   name: 'patient-appointments',
