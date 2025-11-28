@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// TODO: Uncomment when router is implemented in Branch 4
-// import 'package:go_router/go_router.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 
@@ -72,8 +71,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               label: 'Sign In',
               textColor: Colors.white,
               onPressed: () {
-                // TODO: Router will be implemented in Branch 4
-                // context.go('/login');
+                context.go('/login');
               },
             ),
           ),
@@ -107,8 +105,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               // User is logged in, navigate to home
               if (mounted) {
                 setState(() => _isLoading = false);
-                // TODO: Router will be implemented in Branch 4
-                // context.go('/home');
+                context.go('/home');
               }
               return;
             }
@@ -129,8 +126,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             // Navigate to login after a delay
             await Future.delayed(const Duration(seconds: 2));
             if (mounted) {
-              // TODO: Router will be implemented in Branch 4
-              // context.go('/login');
+              context.go('/login');
             }
           }
         }
@@ -163,8 +159,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 label: 'Sign In',
                 textColor: Colors.white,
                 onPressed: () {
-                  // TODO: Router will be implemented in Branch 4
-                  // context.go('/login');
+                  context.go('/login');
                 },
               ),
             ),
@@ -256,8 +251,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       await ref.read(authStateNotifierProvider.notifier).signInWithGoogle();
       
       if (mounted) {
-        // TODO: Router will be implemented in Branch 4
-        // context.go('/home');
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
@@ -354,8 +348,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   // Navigate to login screen
                   Future.microtask(() {
                     if (mounted) {
-                      // TODO: Router will be implemented in Branch 4
-                      // context.go('/login');
+                      context.go('/login');
                     }
                   });
                 },
@@ -392,11 +385,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      // TODO: Router will be implemented in Branch 4
-                      // context.pop();
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -613,11 +602,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   children: [
                     const Text('Already have an account? '),
                     TextButton(
-                      onPressed: () {
-                        // TODO: Router will be implemented in Branch 4
-                        // context.pop();
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: () => context.pop(),
                       child: const Text('Sign In'),
                     ),
                   ],
