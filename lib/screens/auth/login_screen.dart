@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// TODO: Uncomment when router is implemented in Branch 4
-// import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -44,8 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Wait a bit for auth state to update, then let router handle navigation
         await Future.delayed(const Duration(milliseconds: 100));
         if (mounted && ref.read(authStateNotifierProvider).value != null) {
-          // TODO: Router will be implemented in Branch 4
-          // context.go('/home');
+          context.go('/home');
         }
       }
     } on FirebaseAuthException catch (e) {
@@ -126,8 +124,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Wait a bit for auth state to update
         await Future.delayed(const Duration(milliseconds: 100));
         if (mounted && ref.read(authStateNotifierProvider).value != null) {
-          // TODO: Router will be implemented in Branch 4
-          // context.go('/home');
+          context.go('/home');
         }
       }
     } catch (e) {
@@ -350,8 +347,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const Text("Don't have an account? "),
                     TextButton(
                       onPressed: () {
-                        // TODO: Router will be implemented in Branch 4
-                        // context.push('/signup');
+                        context.push('/signup');
                       },
                       child: const Text('Sign Up'),
                     ),
