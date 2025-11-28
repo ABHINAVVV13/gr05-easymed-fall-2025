@@ -9,8 +9,14 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Load environment variables
-  await dotenv.load(fileName: '.env');
+  // Load environment variables (optional - file may not exist in CI/CD)
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    // .env file not found - this is OK in CI/CD where secrets are injected via environment variables
+    // In production, environment variables should be set directly, not via .env file
+    debugPrint('Warning: .env file not found. Using environment variables directly.');
+  }
   
   // Initialize Firebase
   await Firebase.initializeApp(
