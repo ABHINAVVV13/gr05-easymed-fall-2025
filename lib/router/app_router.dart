@@ -8,6 +8,7 @@ import '../screens/auth/signup_screen.dart';
 import '../screens/patient/patient_profile_setup_screen.dart';
 import '../screens/patient/doctor_search_screen.dart';
 import '../screens/patient/doctor_details_screen.dart';
+import '../screens/patient/symptom_questionnaire_screen.dart';
 // import '../screens/patient/appointment_booking_screen.dart';
 // import '../screens/patient/patient_appointments_screen.dart';
 import '../screens/doctor/doctor_profile_setup_screen.dart';
@@ -59,6 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         final routesWithoutProfileCheck = [
           '/doctor-search',
           '/doctor-details',
+          '/symptom-questionnaire',
           '/book-appointment',
           '/doctor-patients',
           '/patient-waiting-room',
@@ -182,6 +184,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           final doctorId = state.pathParameters['doctorId']!;
           return DoctorDetailsScreen(doctorId: doctorId);
         },
+      ),
+      GoRoute(
+        path: '/symptom-questionnaire',
+        name: 'symptom-questionnaire',
+        builder: (context, state) => const SymptomQuestionnaireScreen(),
       ),
       // GoRoute(
       //   path: '/book-appointment/:doctorId',
