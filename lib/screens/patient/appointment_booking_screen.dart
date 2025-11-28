@@ -309,9 +309,8 @@ class _AppointmentBookingScreenState
         await Future.delayed(const Duration(milliseconds: 500));
 
         if (mounted) {
-          // Navigate to waiting room (will be implemented in later branch)
-          // For now, just go back
-          context.pop();
+          // Navigate to waiting room
+          context.pushReplacement('/patient-waiting-room/${appointment.id}');
         }
       }
     } catch (e) {
@@ -380,9 +379,8 @@ class _AppointmentBookingScreenState
         await Future.delayed(const Duration(milliseconds: 500));
 
         if (mounted) {
-          // Navigate to waiting room (will be implemented in later branch)
-          // For now, just go back
-          context.pop();
+          // Navigate to waiting room
+          context.pushReplacement('/patient-waiting-room/${appointment.id}');
         }
       }
     } catch (e) {

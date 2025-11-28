@@ -20,8 +20,8 @@ import '../screens/doctor/create_prescription_screen.dart';
 import '../screens/patient/patient_prescriptions_screen.dart';
 import '../screens/shared/prescription_details_screen.dart';
 // import '../screens/doctor/doctor_patients_screen.dart';
-// import '../screens/patient/patient_waiting_room_screen.dart';
-// import '../screens/doctor/doctor_waiting_room_screen.dart';
+import '../screens/patient/patient_waiting_room_screen.dart';
+import '../screens/doctor/doctor_waiting_room_screen.dart';
 // import '../screens/shared/video_call_screen.dart';
 import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
@@ -219,14 +219,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'patient-prescriptions',
         builder: (context, state) => const PatientPrescriptionsScreen(),
       ),
-      // GoRoute(
-      //   path: '/patient-waiting-room/:appointmentId',
-      //   name: 'patient-waiting-room',
-      //   builder: (context, state) {
-      //     final appointmentId = state.pathParameters['appointmentId']!;
-      //     return PatientWaitingRoomScreen(appointmentId: appointmentId);
-      //   },
-      // ),
+      GoRoute(
+        path: '/patient-waiting-room/:appointmentId',
+        name: 'patient-waiting-room',
+        builder: (context, state) {
+          final appointmentId = state.pathParameters['appointmentId']!;
+          return PatientWaitingRoomScreen(appointmentId: appointmentId);
+        },
+      ),
       // Doctor routes
       GoRoute(
         path: '/doctor-profile',
@@ -250,11 +250,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       //   name: 'doctor-patients',
       //   builder: (context, state) => const DoctorPatientsScreen(),
       // ),
-      // GoRoute(
-      //   path: '/doctor-waiting-room',
-      //   name: 'doctor-waiting-room',
-      //   builder: (context, state) => const DoctorWaitingRoomScreen(),
-      // ),
+      GoRoute(
+        path: '/doctor-waiting-room',
+        name: 'doctor-waiting-room',
+        builder: (context, state) => const DoctorWaitingRoomScreen(),
+      ),
       GoRoute(
         path: '/create-prescription',
         name: 'create-prescription',
