@@ -51,6 +51,9 @@ class DoctorDetailsScreen extends ConsumerWidget {
                 // Doctor Header Card
                 Card(
                   elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
@@ -127,6 +130,9 @@ class DoctorDetailsScreen extends ConsumerWidget {
                 // Professional Information
                 Card(
                   elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -168,6 +174,9 @@ class DoctorDetailsScreen extends ConsumerWidget {
                 if (doctor.workingHours != null && doctor.workingHours!.isNotEmpty)
                   Card(
                     elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(

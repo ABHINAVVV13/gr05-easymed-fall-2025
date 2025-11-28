@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 
+/// Service for managing doctor-related operations in Firestore
+/// Provides methods to search, retrieve, and filter doctors
 class DoctorService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 

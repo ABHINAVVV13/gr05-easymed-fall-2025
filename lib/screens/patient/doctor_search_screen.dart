@@ -188,13 +188,16 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     ref.read(doctorSearchProvider.notifier).refresh();
                   },
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: doctors.length,
                     itemBuilder: (context, index) {
                       final doctor = doctors[index];
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         child: InkWell(
                           onTap: () {
                             context.push('/doctor-details/${doctor.uid}');
