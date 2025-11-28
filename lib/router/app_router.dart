@@ -6,11 +6,11 @@ import '../screens/auth/signup_screen.dart';
 // TODO: Uncomment screens as they are implemented in later branches
 // import '../screens/home/home_screen.dart';
 import '../screens/patient/patient_profile_setup_screen.dart';
-// import '../screens/patient/doctor_search_screen.dart';
-// import '../screens/patient/doctor_details_screen.dart';
+import '../screens/patient/doctor_search_screen.dart';
+import '../screens/patient/doctor_details_screen.dart';
 // import '../screens/patient/appointment_booking_screen.dart';
 // import '../screens/patient/patient_appointments_screen.dart';
-// import '../screens/doctor/doctor_profile_setup_screen.dart';
+import '../screens/doctor/doctor_profile_setup_screen.dart';
 // import '../screens/doctor/doctor_appointments_screen.dart';
 // import '../screens/shared/appointment_details_screen.dart';
 // import '../screens/patient/medical_reports_screen.dart';
@@ -170,19 +170,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      // GoRoute(
-      //   path: '/doctor-search',
-      //   name: 'doctor-search',
-      //   builder: (context, state) => const DoctorSearchScreen(),
-      // ),
-      // GoRoute(
-      //   path: '/doctor-details/:doctorId',
-      //   name: 'doctor-details',
-      //   builder: (context, state) {
-      //     final doctorId = state.pathParameters['doctorId']!;
-      //     return DoctorDetailsScreen(doctorId: doctorId);
-      //   },
-      // ),
+      GoRoute(
+        path: '/doctor-search',
+        name: 'doctor-search',
+        builder: (context, state) => const DoctorSearchScreen(),
+      ),
+      GoRoute(
+        path: '/doctor-details/:doctorId',
+        name: 'doctor-details',
+        builder: (context, state) {
+          final doctorId = state.pathParameters['doctorId']!;
+          return DoctorDetailsScreen(doctorId: doctorId);
+        },
+      ),
       // GoRoute(
       //   path: '/book-appointment/:doctorId',
       //   name: 'book-appointment',
@@ -219,18 +219,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       //   },
       // ),
       // Doctor routes
-      // GoRoute(
-      //   path: '/doctor-profile',
-      //   name: 'doctor-profile',
-      //   builder: (context, state) {
-      //     final isEditing = state.uri.queryParameters['edit'] == 'true';
-      //     final user = authState.value;
-      //     return DoctorProfileSetupScreen(
-      //       isEditing: isEditing,
-      //       initialUser: user,
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        path: '/doctor-profile',
+        name: 'doctor-profile',
+        builder: (context, state) {
+          final isEditing = state.uri.queryParameters['edit'] == 'true';
+          final user = authState.value;
+          return DoctorProfileSetupScreen(
+            isEditing: isEditing,
+            initialUser: user,
+          );
+        },
+      ),
       // GoRoute(
       //   path: '/doctor-appointments',
       //   name: 'doctor-appointments',
