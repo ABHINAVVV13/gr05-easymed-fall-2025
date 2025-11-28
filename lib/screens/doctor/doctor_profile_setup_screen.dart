@@ -150,11 +150,13 @@ class _DoctorProfileSetupScreenState
       double? consultationFee;
       if (_consultationFeeController.text.trim().isNotEmpty) {
         consultationFee = double.tryParse(_consultationFeeController.text.trim());
-        if (consultationFee == null || consultationFee < 0) {
+        if (consultationFee == null || consultationFee < DoctorConstants.minConsultationFee) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please enter a valid consultation fee'),
+            SnackBar(
+              content: Text(
+                'Please enter a valid consultation fee (minimum: \$${DoctorConstants.minConsultationFee.toStringAsFixed(2)})',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -164,15 +166,37 @@ class _DoctorProfileSetupScreenState
 
       // Convert working hours to the format expected by UserModel
       final workingHoursMap = <String, dynamic>{};
-      _workingHours.forEach((day, value) {
+      for (final entry in _workingHours.entries) {
+        final day = entry.key;
+        final value = entry.value;
         if (value['enabled'] == true) {
+          final startTime = value['start'] as String;
+          final endTime = value['end'] as String;
+          
+          // Validate that end time is after start time
+          final startParts = startTime.split(':');
+          final endParts = endTime.split(':');
+          final startMinutes = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+          final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+          
+          if (endMinutes <= startMinutes) {
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$day: End time must be after start time'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+          
           workingHoursMap[day] = {
             'enabled': true,
-            'start': value['start'] as String,
-            'end': value['end'] as String,
+            'start': startTime,
+            'end': endTime,
           };
         }
-      });
+      }
 
       final updatedUser = currentUser.copyWith(
         specialization: _selectedSpecialization,
@@ -374,6 +398,10 @@ class _DoctorProfileSetupScreenState
                   filled: true,
                   fillColor: Colors.grey.shade50,
                 ),
+                maxLength: 100,
+                buildCounter: (context, {required currentLength, required isFocused, maxLength}) {
+                  return null; // Hide counter
+                },
               ),
               const SizedBox(height: 24),
               // License number field
@@ -392,6 +420,10 @@ class _DoctorProfileSetupScreenState
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter your license number';
+                  }
+                  // Basic validation: license number should be at least 3 characters
+                  if (value.trim().length < 3) {
+                    return 'License number must be at least 3 characters';
                   }
                   return null;
                 },
@@ -414,8 +446,8 @@ class _DoctorProfileSetupScreenState
                 validator: (value) {
                   if (value != null && value.trim().isNotEmpty) {
                     final fee = double.tryParse(value.trim());
-                    if (fee == null || fee < 0) {
-                      return 'Please enter a valid fee amount';
+                    if (fee == null || fee < DoctorConstants.minConsultationFee) {
+                      return 'Please enter a valid fee amount (minimum: \$${DoctorConstants.minConsultationFee.toStringAsFixed(2)})';
                     }
                   }
                   return null;
@@ -482,6 +514,31 @@ class _DoctorProfileSetupScreenState
                                 ),
                               ),
                             ],
+                          ),
+                          // Validate that end time is after start time
+                          Builder(
+                            builder: (context) {
+                              final startTime = _workingHours[day]!['start'] as String;
+                              final endTime = _workingHours[day]!['end'] as String;
+                              final startParts = startTime.split(':');
+                              final endParts = endTime.split(':');
+                              final startMinutes = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+                              final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+                              
+                              if (endMinutes <= startMinutes) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    'End time must be after start time',
+                                    style: TextStyle(
+                                      color: Colors.red.shade700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
                           ),
                         ],
                       ],
