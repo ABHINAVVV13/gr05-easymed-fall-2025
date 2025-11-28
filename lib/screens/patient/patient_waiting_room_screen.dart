@@ -159,8 +159,7 @@ class _PatientWaitingRoomScreenState extends ConsumerState<PatientWaitingRoomScr
               _hasNavigatedToCall = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  // TODO: Navigate to video call when implemented
-                  // context.push('/video-call/${appointment.id}');
+                  context.push('/video-call/${appointment.id}');
                 }
               });
             }

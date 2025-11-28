@@ -22,7 +22,7 @@ import '../screens/shared/prescription_details_screen.dart';
 // import '../screens/doctor/doctor_patients_screen.dart';
 import '../screens/patient/patient_waiting_room_screen.dart';
 import '../screens/doctor/doctor_waiting_room_screen.dart';
-// import '../screens/shared/video_call_screen.dart';
+import '../screens/shared/video_call_screen.dart';
 import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
 
@@ -292,14 +292,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           return PrescriptionDetailsScreen(prescriptionId: prescriptionId);
         },
       ),
-      // GoRoute(
-      //   path: '/video-call/:appointmentId',
-      //   name: 'video-call',
-      //   builder: (context, state) {
-      //     final appointmentId = state.pathParameters['appointmentId']!;
-      //     return VideoCallScreen(appointmentId: appointmentId);
-      //   },
-      // ),
+      GoRoute(
+        path: '/video-call/:appointmentId',
+        name: 'video-call',
+        builder: (context, state) {
+          final appointmentId = state.pathParameters['appointmentId']!;
+          return VideoCallScreen(appointmentId: appointmentId);
+        },
+      ),
     ],
     errorBuilder: (context, state) {
       // Fallback error page
