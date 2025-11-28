@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
-// TODO: Uncomment screens as they are implemented in later branches
-// import '../screens/home/home_screen.dart';
+import '../screens/home/home_screen.dart';
 import '../screens/patient/patient_profile_setup_screen.dart';
 import '../screens/patient/doctor_search_screen.dart';
 import '../screens/patient/doctor_details_screen.dart';
@@ -58,6 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         
         // Define routes that don't require profile completion
         final routesWithoutProfileCheck = [
+          '/home',
           '/doctor-search',
           '/doctor-details',
           '/symptom-questionnaire',
@@ -126,6 +126,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(
+        path: '/home',
+        name: 'home',
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
         path: '/login',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
@@ -134,29 +139,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignupScreen(),
-      ),
-      // TODO: Home screen will be implemented in later branch
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) {
-          // Temporary placeholder until HomeScreen is implemented
-          return Scaffold(
-            appBar: AppBar(title: const Text('EasyMed')),
-            body: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.medical_services, size: 64, color: Color(0xFF2196F3)),
-                  SizedBox(height: 16),
-                  Text('Home Screen', style: TextStyle(fontSize: 24)),
-                  SizedBox(height: 8),
-                  Text('Will be implemented in later branch', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ),
-          );
-        },
       ),
       // TODO: Uncomment routes as screens are implemented
       // Patient routes
