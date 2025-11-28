@@ -4,6 +4,15 @@ import 'package:go_router/go_router.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 
+// Constants for validation and UI
+class _PatientProfileConstants {
+  static const int minAge = 0;
+  static const int maxAge = 150;
+  static const int snackbarDurationSeconds = 2;
+  static const int errorSnackbarDurationSeconds = 4;
+  static const int navigationDelayMs = 500;
+}
+
 class PatientProfileSetupScreen extends ConsumerStatefulWidget {
   final bool isEditing;
   final UserModel? initialUser;
@@ -74,9 +83,9 @@ class _PatientProfileSetupScreenState
     } else {
       // Show feedback if allergy already exists
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('This allergy has already been added'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: const Text('This allergy has already been added'),
+          duration: const Duration(seconds: _PatientProfileConstants.snackbarDurationSeconds),
         ),
       );
     }
@@ -109,9 +118,9 @@ class _PatientProfileSetupScreenState
     } else {
       // Show feedback if condition already exists
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('This condition has already been added'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: const Text('This condition has already been added'),
+          duration: const Duration(seconds: _PatientProfileConstants.snackbarDurationSeconds),
         ),
       );
     }
@@ -140,11 +149,15 @@ class _PatientProfileSetupScreenState
       int? age;
       if (_ageController.text.trim().isNotEmpty) {
         age = int.tryParse(_ageController.text.trim());
-        if (age == null || age < 0 || age > 150) {
+        if (age == null || 
+            age < _PatientProfileConstants.minAge || 
+            age > _PatientProfileConstants.maxAge) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please enter a valid age (0-150)'),
+            SnackBar(
+              content: Text(
+                'Please enter a valid age (${_PatientProfileConstants.minAge}-${_PatientProfileConstants.maxAge})',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -173,7 +186,9 @@ class _PatientProfileSetupScreenState
         );
 
         // Wait a moment for the snackbar to show
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(
+          const Duration(milliseconds: _PatientProfileConstants.navigationDelayMs),
+        );
 
         if (!widget.isEditing) {
           // First time setup - navigate to home
@@ -194,7 +209,9 @@ class _PatientProfileSetupScreenState
           SnackBar(
             content: Text('Error saving profile: ${e.toString()}'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
+            duration: const Duration(
+              seconds: _PatientProfileConstants.errorSnackbarDurationSeconds,
+            ),
           ),
         );
       }
@@ -320,8 +337,10 @@ class _PatientProfileSetupScreenState
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     final age = int.tryParse(value);
-                    if (age == null || age < 0 || age > 150) {
-                      return 'Please enter a valid age (0-150)';
+                    if (age == null || 
+                        age < _PatientProfileConstants.minAge || 
+                        age > _PatientProfileConstants.maxAge) {
+                      return 'Please enter a valid age (${_PatientProfileConstants.minAge}-${_PatientProfileConstants.maxAge})';
                     }
                   }
                   return null;
