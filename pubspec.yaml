@@ -35,5 +35,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - .env
+  # .env is optional - not included in assets to avoid CI/CD build failures
+  # Environment variables should be set directly in CI/CD or create .env locally
+  # assets:
+  #   - .env
