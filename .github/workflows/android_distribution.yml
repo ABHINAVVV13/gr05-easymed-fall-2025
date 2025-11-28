@@ -1,0 +1,51 @@
+name: Build and Distribute Android App to Firebase
+
+# Trigger on pushes to main branch and pull request merges
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  build_and_distribute:
+    # Only run on push to main or merged pull requests
+    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+    
+    - name: Install Flutter dependencies
+      run: flutter pub get
+    
+    - name: Build Android Release APK
+      run: flutter build apk --release
+    
+    - name: Set up Firebase CLI
+      run: npm install -g firebase-tools
+    
+    - name: Distribute to Firebase App Distribution
+      run: |
+        firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
+          --app ${{ secrets.FIREBASE_APP_ID }} \
+          --release-notes "Build from commit ${{ github.sha }} by ${{ github.actor }}" \
+          --groups "testers"
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
