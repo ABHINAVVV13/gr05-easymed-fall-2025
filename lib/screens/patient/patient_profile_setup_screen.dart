@@ -55,12 +55,30 @@ class _PatientProfileSetupScreenState
 
   void _addAllergy() {
     final allergy = _allergyController.text.trim();
-    if (allergy.isNotEmpty && !_allergies.contains(allergy)) {
+    if (allergy.isEmpty) {
+      return;
+    }
+    
+    // Normalize allergy text (capitalize first letter)
+    final normalizedAllergy = allergy.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+    
+    if (!_allergies.contains(normalizedAllergy)) {
       setState(() {
-        _allergies.add(allergy);
+        _allergies.add(normalizedAllergy);
         _allergyController.clear();
       });
       FocusScope.of(context).unfocus();
+    } else {
+      // Show feedback if allergy already exists
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This allergy has already been added'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -72,12 +90,30 @@ class _PatientProfileSetupScreenState
 
   void _addCondition() {
     final condition = _conditionController.text.trim();
-    if (condition.isNotEmpty && !_pastConditions.contains(condition)) {
+    if (condition.isEmpty) {
+      return;
+    }
+    
+    // Normalize condition text (capitalize first letter)
+    final normalizedCondition = condition.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+    
+    if (!_pastConditions.contains(normalizedCondition)) {
       setState(() {
-        _pastConditions.add(condition);
+        _pastConditions.add(normalizedCondition);
         _conditionController.clear();
       });
       FocusScope.of(context).unfocus();
+    } else {
+      // Show feedback if condition already exists
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This condition has already been added'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
