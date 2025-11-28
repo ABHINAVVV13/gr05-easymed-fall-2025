@@ -291,7 +291,8 @@ class _MedicalReportsScreenState extends ConsumerState<MedicalReportsScreen> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              await ref.refresh(patientReportsProvider.future);
+              // ignore: unused_result
+              ref.refresh(patientReportsProvider);
             },
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
