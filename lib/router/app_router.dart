@@ -5,7 +5,7 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 // TODO: Uncomment screens as they are implemented in later branches
 // import '../screens/home/home_screen.dart';
-// import '../screens/patient/patient_profile_setup_screen.dart';
+import '../screens/patient/patient_profile_setup_screen.dart';
 // import '../screens/patient/doctor_search_screen.dart';
 // import '../screens/patient/doctor_details_screen.dart';
 // import '../screens/patient/appointment_booking_screen.dart';
@@ -158,18 +158,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       // TODO: Uncomment routes as screens are implemented
       // Patient routes
-      // GoRoute(
-      //   path: '/patient-profile',
-      //   name: 'patient-profile',
-      //   builder: (context, state) {
-      //     final isEditing = state.uri.queryParameters['edit'] == 'true';
-      //     final user = authState.value;
-      //     return PatientProfileSetupScreen(
-      //       isEditing: isEditing,
-      //       initialUser: user,
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        path: '/patient-profile',
+        name: 'patient-profile',
+        builder: (context, state) {
+          final isEditing = state.uri.queryParameters['edit'] == 'true';
+          final user = authState.value;
+          return PatientProfileSetupScreen(
+            isEditing: isEditing,
+            initialUser: user,
+          );
+        },
+      ),
       // GoRoute(
       //   path: '/doctor-search',
       //   name: 'doctor-search',
