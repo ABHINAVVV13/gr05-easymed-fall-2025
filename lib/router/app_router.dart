@@ -10,10 +10,10 @@ import '../screens/patient/doctor_search_screen.dart';
 import '../screens/patient/doctor_details_screen.dart';
 import '../screens/patient/symptom_questionnaire_screen.dart';
 import '../screens/patient/appointment_booking_screen.dart';
-// import '../screens/patient/patient_appointments_screen.dart';
+import '../screens/patient/patient_appointments_screen.dart';
 import '../screens/doctor/doctor_profile_setup_screen.dart';
-// import '../screens/doctor/doctor_appointments_screen.dart';
-// import '../screens/shared/appointment_details_screen.dart';
+import '../screens/doctor/doctor_appointments_screen.dart';
+import '../screens/shared/appointment_details_screen.dart';
 import '../screens/patient/medical_reports_screen.dart';
 import '../screens/shared/report_details_screen.dart';
 import '../screens/doctor/create_prescription_screen.dart';
@@ -204,11 +204,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           return AppointmentBookingScreen(doctorId: doctorId, isInstant: isInstant);
         },
       ),
-      // GoRoute(
-      //   path: '/patient-appointments',
-      //   name: 'patient-appointments',
-      //   builder: (context, state) => const PatientAppointmentsScreen(),
-      // ),
+      GoRoute(
+        path: '/patient-appointments',
+        name: 'patient-appointments',
+        builder: (context, state) => const PatientAppointmentsScreen(),
+      ),
       GoRoute(
         path: '/medical-reports',
         name: 'medical-reports',
@@ -240,11 +240,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      // GoRoute(
-      //   path: '/doctor-appointments',
-      //   name: 'doctor-appointments',
-      //   builder: (context, state) => const DoctorAppointmentsScreen(),
-      // ),
+      GoRoute(
+        path: '/doctor-appointments',
+        name: 'doctor-appointments',
+        builder: (context, state) => const DoctorAppointmentsScreen(),
+      ),
       // GoRoute(
       //   path: '/doctor-patients',
       //   name: 'doctor-patients',
@@ -268,14 +268,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       // Shared routes
-      // GoRoute(
-      //   path: '/appointment-details/:appointmentId',
-      //   name: 'appointment-details',
-      //   builder: (context, state) {
-      //     final appointmentId = state.pathParameters['appointmentId']!;
-      //     return AppointmentDetailsScreen(appointmentId: appointmentId);
-      //   },
-      // ),
+      GoRoute(
+        path: '/appointment-details/:appointmentId',
+        name: 'appointment-details',
+        builder: (context, state) {
+          final appointmentId = state.pathParameters['appointmentId']!;
+          return AppointmentDetailsScreen(appointmentId: appointmentId);
+        },
+      ),
       GoRoute(
         path: '/report-details/:reportId',
         name: 'report-details',
