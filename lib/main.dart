@@ -4,6 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'router/app_router.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:rxdart/rxdart.dart';
+
+final messageStreamController = BehaviorSubject<RemoteMessage>();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+  print('Message data: ${message.data}');
+  print('Message notification: ${message.notification?.title}');
+  print('Message notification: ${message.notification?.body}');
+}
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +34,53 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // notifications: request permission function
+  final messaging = FirebaseMessaging.instance;
+
+  final settings = await messaging.requestPermission(
+  alert: true,
+  announcement: false,
+  badge: true,
+  carPlay: false,
+  criticalAlert: false,
+  provisional: false,
+  sound: true,
+  );
+  // force it for testing
+  print('Permission granted: ${settings.authorizationStatus}');
+  
+
+  String? token = await messaging.getToken();
+  // force it for testing
+  print('Registration Token=$token');
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  if (true) {
+    print('Handling a foreground message: ${message.messageId}');
+    print('Message data: ${message.data}');
+    print('Message notification: ${message.notification?.title}');
+    print('Message notification: ${message.notification?.body}');
+  }
+
+  messageStreamController.sink.add(message);
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print('App opened from notification: ${message.messageId}');
+    messageStreamController.sink.add(message);
+  });
+
+  final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    print('App launched from notification: ${initialMessage.messageId}');
+    messageStreamController.sink.add(initialMessage);
+  }
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  const topic = 'app_promotion';
+  await messaging.subscribeToTopic(topic);
   
   runApp(
     const ProviderScope(
