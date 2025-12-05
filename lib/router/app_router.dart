@@ -22,6 +22,7 @@ import '../screens/doctor/doctor_patients_screen.dart';
 import '../screens/patient/patient_waiting_room_screen.dart';
 import '../screens/doctor/doctor_waiting_room_screen.dart';
 import '../screens/shared/video_call_screen.dart';
+import '../screens/shared/chat_screen.dart';
 import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
 
@@ -280,6 +281,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final appointmentId = state.pathParameters['appointmentId']!;
           return VideoCallScreen(appointmentId: appointmentId);
+        },
+      ),
+      GoRoute(
+        path: '/chat/:appointmentId',
+        name: 'chat',
+        builder: (context, state) {
+          final appointmentId = state.pathParameters['appointmentId']!;
+          return ChatScreen(appointmentId: appointmentId);
         },
       ),
     ],

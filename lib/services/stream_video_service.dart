@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
@@ -13,54 +14,64 @@ class StreamVideoService {
   /// Initialize Stream Video client with user
   static Future<void> initialize(app_models.UserModel user) async {
     if (_isInitialized && _client != null) {
-      // Verify client is still connected
-      try {
-        // If client exists and is initialized, return early
-        return;
-      } catch (e) {
-        // If client is in bad state, reset and reinitialize
-        debugPrint('Client in bad state, reinitializing: $e');
-        _client = null;
-        _isInitialized = false;
-      }
+      return; // Already initialized
     }
 
     try {
-      final apiKey = dotenv.env['STREAM_API_KEY'];
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('STREAM_API_KEY not found in .env file');
+      debugPrint('Step 1: Getting API key...');
+      String? apiKey;
+      
+      // Try dotenv first (local development), then environment variables (CI/CD)
+      if (dotenv.isInitialized) {
+        apiKey = dotenv.env['STREAM_API_KEY'];
+        debugPrint('Step 1: API key from dotenv (.env file), length: ${apiKey?.length ?? 0}');
       }
+      
+      // Fall back to environment variables (for CI/CD - GitHub Actions secrets)
+      if (apiKey == null || apiKey.isEmpty) {
+        apiKey = Platform.environment['STREAM_API_KEY'];
+        debugPrint('Step 1: API key from environment variable (CI/CD), length: ${apiKey?.length ?? 0}');
+      }
+      
+      if (apiKey == null || apiKey.isEmpty) {
+        throw Exception('STREAM_API_KEY not found. For local dev: check .env file. For CI/CD: check GitHub Actions secrets.');
+      }
+      debugPrint('Step 1: ✓ API key found (length: ${apiKey.length})');
 
+      debugPrint('Step 2: Creating Stream user object...');
       // Generate user token (in production, this should come from your backend)
       final streamUser = User.regular(
         userId: user.uid,
         role: user.userType == app_models.UserType.doctor ? 'admin' : 'user',
         name: user.displayName ?? (user.userType == app_models.UserType.patient ? 'Patient' : 'Doctor'),
       );
+      debugPrint('Step 2: Stream user created: ${streamUser.id}');
 
+      debugPrint('Step 3: Generating user token...');
       // Generate user token from Firebase Cloud Function
       final userToken = await _generateUserToken(user.uid);
+      debugPrint('Step 3: User token generated');
 
-      debugPrint('Creating Stream Video client...');
+      debugPrint('Step 4: Creating StreamVideo instance...');
       _client = StreamVideo(
         apiKey,
         user: streamUser,
         userToken: userToken,
       );
+      debugPrint('Step 4: StreamVideo instance created successfully');
 
-      // Connect the client - required before using Stream Video
-      debugPrint('Connecting Stream Video client...');
-      await _client!.connect();
-      debugPrint('Stream Video client connected successfully');
-
+      debugPrint('Step 5: Marking as initialized...');
       _isInitialized = true;
+      debugPrint('Step 5: StreamVideoService initialized successfully');
     } catch (e, stackTrace) {
-      // Reset state on failure to allow retry
+      debugPrint('ERROR in StreamVideoService.initialize at step above');
+      debugPrint('Error type: ${e.runtimeType}');
+      debugPrint('Error message: $e');
+      debugPrint('Stack trace: $stackTrace');
       _client = null;
       _isInitialized = false;
-      debugPrint('Stream Video initialization failed: $e');
-      debugPrint('Stack trace: $stackTrace');
-      throw Exception('Failed to initialize Stream Video: $e');
+      // Re-throw the original error without wrapping
+      rethrow;
     }
   }
 
@@ -105,9 +116,19 @@ class StreamVideoService {
   }
 
   /// Create or get a call for an appointment
-  static Call makeCallForAppointment(AppointmentModel appointment) {
+  static Future<Call> makeCallForAppointment(AppointmentModel appointment) async {
     if (_client == null) {
       throw Exception('Stream Video not initialized. Call initialize() first.');
+    }
+
+    // Ensure client is connected before making call
+    try {
+      // Try to connect if not already connected
+      await _client!.connect();
+      // Small delay to ensure connection is established
+      await Future.delayed(const Duration(milliseconds: 300));
+    } catch (e) {
+      debugPrint('Note: Client may already be connected: $e');
     }
 
     // Generate unique call ID from appointment ID
@@ -131,4 +152,3 @@ class StreamVideoService {
     }
   }
 }
-

@@ -41,6 +41,7 @@ class _AppointmentBookingScreenState
   bool _checkingAvailability = false;
   String? _availabilityError;
   UserModel? _doctor;
+  ConsultationType _consultationType = ConsultationType.video; // Default to video
   // Questionnaire data
   Map<String, dynamic>? _questionnaireData;
 
@@ -284,6 +285,7 @@ class _AppointmentBookingScreenState
         scheduledTime: dateTime,
         type: AppointmentType.scheduled,
         status: AppointmentStatus.scheduled,
+        consultationType: _consultationType,
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
@@ -357,6 +359,7 @@ class _AppointmentBookingScreenState
         scheduledTime: DateTime.now(),
         type: AppointmentType.instant,
         status: AppointmentStatus.scheduled, // Start as scheduled, doctor will start it
+        consultationType: _consultationType,
         symptoms: _questionnaireData?['symptoms'] as List<String>?,
         severity: _questionnaireData?['severity'] as String?,
         duration: _questionnaireData?['duration'] as String?,
@@ -604,6 +607,126 @@ class _AppointmentBookingScreenState
                               filled: true,
                               fillColor: Colors.grey.shade50,
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Consultation Type Selection
+                  Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Consultation Type',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _consultationType = ConsultationType.video;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: _consultationType == ConsultationType.video
+                                          ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                                          : Colors.grey.shade50,
+                                      border: Border.all(
+                                        color: _consultationType == ConsultationType.video
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Colors.grey.shade300,
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.videocam,
+                                          size: 32,
+                                          color: _consultationType == ConsultationType.video
+                                              ? Theme.of(context).colorScheme.primary
+                                              : Colors.grey,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Video Call',
+                                          style: TextStyle(
+                                            fontWeight: _consultationType == ConsultationType.video
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: _consultationType == ConsultationType.video
+                                                ? Theme.of(context).colorScheme.primary
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _consultationType = ConsultationType.chat;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: _consultationType == ConsultationType.chat
+                                          ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                                          : Colors.grey.shade50,
+                                      border: Border.all(
+                                        color: _consultationType == ConsultationType.chat
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Colors.grey.shade300,
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.chat,
+                                          size: 32,
+                                          color: _consultationType == ConsultationType.chat
+                                              ? Theme.of(context).colorScheme.primary
+                                              : Colors.grey,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Chat',
+                                          style: TextStyle(
+                                            fontWeight: _consultationType == ConsultationType.chat
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: _consultationType == ConsultationType.chat
+                                                ? Theme.of(context).colorScheme.primary
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

@@ -438,17 +438,24 @@ class AppointmentDetailsScreen extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 24),
-                // Join Video Call button (for in-progress appointments)
+                // Join Video Call or Chat button (for in-progress appointments)
                 if (appointment.status == AppointmentStatus.inProgress) ...[
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: Navigate to video call when implemented
-                        // context.push('/video-call/${appointment.id}');
+                        if (appointment.consultationType == ConsultationType.chat) {
+                          context.push('/chat/${appointment.id}');
+                        } else {
+                          context.push('/video-call/${appointment.id}');
+                        }
                       },
-                      icon: const Icon(Icons.video_call),
-                      label: const Text('Join Video Call'),
+                      icon: Icon(appointment.consultationType == ConsultationType.chat 
+                          ? Icons.chat 
+                          : Icons.video_call),
+                      label: Text(appointment.consultationType == ConsultationType.chat 
+                          ? 'Join Chat' 
+                          : 'Join Video Call'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: Colors.green,

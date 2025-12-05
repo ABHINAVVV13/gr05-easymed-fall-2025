@@ -123,10 +123,13 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
 
       // Initialize Stream Video if not already initialized
       try {
+        debugPrint('About to call StreamVideoService.initialize...');
         await StreamVideoService.initialize(currentUser);
         debugPrint('Stream Video initialized successfully');
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('Stream Video initialization error: $e');
+        debugPrint('Full error type: ${e.runtimeType}');
+        debugPrint('Stack trace: $stackTrace');
         setState(() {
           _isJoining = false;
           _errorMessage = 'Failed to initialize video call: ${e.toString()}';
@@ -141,7 +144,7 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
       });
 
       try {
-        _call = StreamVideoService.makeCallForAppointment(appointment);
+        _call = await StreamVideoService.makeCallForAppointment(appointment);
         debugPrint('Call created: ${_call!.id}');
         
         // Get or create the call on the backend with timeout

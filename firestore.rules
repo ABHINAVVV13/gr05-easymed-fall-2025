@@ -80,6 +80,29 @@ service cloud.firestore {
       // Allow deleting appointments (patients can cancel)
       allow delete: if isAuthenticated() 
                    && resource.data.patientId == request.auth.uid;
+      
+      // Messages subcollection - chat messages for appointments
+      match /messages/{messageId} {
+        // Helper function to check if user is part of the appointment
+        function isAppointmentParticipant() {
+          return isAuthenticated() 
+                 && (get(/databases/$(database)/documents/appointments/$(appointmentId)).data.patientId == request.auth.uid
+                     || get(/databases/$(database)/documents/appointments/$(appointmentId)).data.doctorId == request.auth.uid);
+        }
+        
+        // Allow reading messages if user is patient or doctor of the appointment
+        allow read: if isAppointmentParticipant();
+        
+        // Allow creating messages if user is patient or doctor of the appointment
+        allow create: if isAppointmentParticipant()
+                     && request.resource.data.senderId == request.auth.uid
+                     && request.resource.data.keys().hasAll(['id', 'appointmentId', 'senderId', 'senderName', 'message', 'timestamp', 'isRead']);
+        
+        // Allow updating messages (to mark as read) - can update messages from others
+        allow update: if isAppointmentParticipant()
+                     && resource.data.senderId != request.auth.uid
+                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      }
     }
     
     // Prescriptions collection

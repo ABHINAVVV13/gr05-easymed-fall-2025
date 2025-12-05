@@ -154,12 +154,16 @@ class _PatientWaitingRoomScreenState extends ConsumerState<PatientWaitingRoomScr
               );
             }
 
-            // If appointment status changed to inProgress, navigate to video call
+            // If appointment status changed to inProgress, navigate to chat or video call
             if (appointment.status == AppointmentStatus.inProgress && !_hasNavigatedToCall) {
               _hasNavigatedToCall = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  context.push('/video-call/${appointment.id}');
+                  if (appointment.consultationType == ConsultationType.chat) {
+                    context.push('/chat/${appointment.id}');
+                  } else {
+                    context.push('/video-call/${appointment.id}');
+                  }
                 }
               });
             }

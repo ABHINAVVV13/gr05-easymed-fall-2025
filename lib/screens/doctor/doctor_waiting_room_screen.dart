@@ -387,9 +387,13 @@ class _WaitingPatientCard extends ConsumerWidget {
         // Wait a moment for the status update to propagate
         await Future.delayed(const Duration(milliseconds: 500));
         
-        // Navigate to video call screen
+        // Navigate to chat or video call screen based on consultation type
         if (context.mounted) {
-          context.push('/video-call/${appointment.id}');
+          if (appointment.consultationType == ConsultationType.chat) {
+            context.push('/chat/${appointment.id}');
+          } else {
+            context.push('/video-call/${appointment.id}');
+          }
         }
       }
     } catch (e) {
