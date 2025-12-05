@@ -12,6 +12,11 @@ enum AppointmentType {
   scheduled,
 }
 
+enum ConsultationType {
+  video, // Video call consultation
+  chat,  // Text chat consultation
+}
+
 class AppointmentModel {
   final String id;
   final String patientId;
@@ -19,6 +24,7 @@ class AppointmentModel {
   final DateTime scheduledTime;
   final AppointmentType type;
   final AppointmentStatus status;
+  final ConsultationType consultationType; // video or chat
   final String? notes;
   final String? prescriptionId;
   // Questionnaire data
@@ -41,6 +47,7 @@ class AppointmentModel {
     required this.scheduledTime,
     required this.type,
     required this.status,
+    this.consultationType = ConsultationType.video, // Default to video
     this.notes,
     this.prescriptionId,
     this.symptoms,
@@ -63,6 +70,7 @@ class AppointmentModel {
       'scheduledTime': Timestamp.fromDate(scheduledTime),
       'type': type.name,
       'status': status.name,
+      'consultationType': consultationType.name,
       'notes': notes,
       'prescriptionId': prescriptionId,
       'symptoms': symptoms,
@@ -92,6 +100,12 @@ class AppointmentModel {
         (e) => e.name == map['status'],
         orElse: () => AppointmentStatus.scheduled,
       ),
+      consultationType: map['consultationType'] != null
+          ? ConsultationType.values.firstWhere(
+              (e) => e.name == map['consultationType'],
+              orElse: () => ConsultationType.video,
+            )
+          : ConsultationType.video,
       notes: map['notes'] as String?,
       prescriptionId: map['prescriptionId'] as String?,
       symptoms: map['symptoms'] != null
@@ -124,6 +138,7 @@ class AppointmentModel {
     DateTime? scheduledTime,
     AppointmentType? type,
     AppointmentStatus? status,
+    ConsultationType? consultationType,
     String? notes,
     String? prescriptionId,
     List<String>? symptoms,
@@ -144,6 +159,7 @@ class AppointmentModel {
       scheduledTime: scheduledTime ?? this.scheduledTime,
       type: type ?? this.type,
       status: status ?? this.status,
+      consultationType: consultationType ?? this.consultationType,
       notes: notes ?? this.notes,
       prescriptionId: prescriptionId ?? this.prescriptionId,
       symptoms: symptoms ?? this.symptoms,
