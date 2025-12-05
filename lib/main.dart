@@ -8,13 +8,14 @@ import 'router/app_router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Load environment variables (optional - file may not exist in CI/CD)
+  // Load environment variables - only for local development
+  // In CI/CD, environment variables are set directly by GitHub Actions
   try {
     await dotenv.load(fileName: '.env');
+    debugPrint('✓ .env file loaded (local development)');
   } catch (e) {
-    // .env file not found - this is OK in CI/CD where secrets are injected via environment variables
-    // In production, environment variables should be set directly, not via .env file
-    debugPrint('Warning: .env file not found. Using environment variables directly.');
+    // .env file not found - this is OK in CI/CD where secrets are in GitHub Actions
+    debugPrint('ℹ .env file not found, using environment variables (CI/CD mode)');
   }
   
   // Initialize Firebase
