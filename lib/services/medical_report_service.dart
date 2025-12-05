@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:easymed/screens/patient/medical_reports_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/medical_report_model.dart';
 
 class MedicalReportService {
@@ -125,3 +127,9 @@ class MedicalReportService {
   }
 }
 
+final reportStreamProvider = StreamProvider.family<MedicalReportModel?, String>((ref, reportId) {
+  
+  final reportService = ref.read(medicalReportServiceProvider);
+  
+  return reportService.getReportStreamById(reportId);
+});

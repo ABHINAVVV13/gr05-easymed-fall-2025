@@ -1,3 +1,5 @@
+import 'package:easymed/models/medical_report_model.dart';
+import 'package:easymed/screens/shared/full_screen_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,8 +41,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         final currentPath = state.uri.path;
         final isLoggedIn = authState.value != null;
-        final isOnAuthScreen = currentPath == '/login' || 
-                              currentPath == '/signup';
+        final isOnAuthScreen =
+            currentPath == '/login' || currentPath == '/signup';
 
         // NEVER redirect if there's an error on auth screens
         if (authState.hasError && isOnAuthScreen) {
@@ -54,7 +56,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           '/patient-profile',
           '/doctor-profile',
         ];
-        
+
         // Define routes that don't require profile completion
         final routesWithoutProfileCheck = [
           '/home',
@@ -67,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           '/doctor-waiting-room',
           '/video-call',
         ];
-        
+
         // Check if current path matches routes without profile check
         final isOnRouteWithoutProfileCheck = routesWithoutProfileCheck.any(
           (route) => currentPath.startsWith(route),
@@ -76,7 +78,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         // Redirect unauthenticated users away from protected routes
         // But allow booking routes (they'll check auth in the screen itself)
         final isOnBookingRoute = currentPath.startsWith('/book-appointment');
-        if (!isLoggedIn && !isOnAuthScreen && !publicRoutes.contains(currentPath) && !isOnBookingRoute) {
+        if (!isLoggedIn &&
+            !isOnAuthScreen &&
+            !publicRoutes.contains(currentPath) &&
+            !isOnBookingRoute) {
           return '/login';
         }
 
@@ -183,7 +188,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('Invalid doctor ID')),
             );
           }
-          return AppointmentBookingScreen(doctorId: doctorId, isInstant: isInstant);
+          return AppointmentBookingScreen(
+            doctorId: doctorId,
+            isInstant: isInstant,
+          );
         },
       ),
       GoRoute(
@@ -195,6 +203,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/medical-reports',
         name: 'medical-reports',
         builder: (context, state) => const MedicalReportsScreen(),
+      ),
+      GoRoute(
+        path: '/fullscreen-viewer',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return FullScreenViewer(
+            report: extra['report'] as MedicalReportModel,
+            viewerWidget: extra['viewerWidget'] as Widget,
+          );
+        },
       ),
       GoRoute(
         path: '/patient-prescriptions',
@@ -321,4 +339,3 @@ bool _isDoctorProfileComplete(UserModel user) {
       user.licenseNumber != null &&
       user.licenseNumber!.isNotEmpty;
 }
-
