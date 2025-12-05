@@ -5,6 +5,7 @@
     
     <application
         android:label="easymed"
+        android:requestLegacyExternalStorage="true"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
