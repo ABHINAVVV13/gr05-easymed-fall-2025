@@ -24,7 +24,7 @@ A comprehensive telemedicine platform built with Flutter that connects patients 
 2. Run `flutter pub get`
 3. Configure Firebase (add `google-services.json` for Android)
 4. Set up environment variables (see `.env.example`)
-5. Run `flutter run`
+5. Run `flutter run --dart-define=STRIPE_PUBLISHABLE_KEY=STRIPE_API_KEY --dart-define=STREAM_API_KEY=STREAM_API_KEY --dart-define=STREAM_APP_ID=STREAM_API_ID `
 
 ## Team
 
