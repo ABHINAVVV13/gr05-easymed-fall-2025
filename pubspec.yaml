@@ -33,6 +33,11 @@ dependencies:
   share_plus: ^12.0.1
   path_provider: ^2.1.2
   flutter_stripe: ^11.1.0
+  just_audio: ^0.9.40
+  audioplayers: ^6.0.0
+  flutter_sound: ^9.2.13
+  syncfusion_flutter_charts: ^31.2.16
+
 
 dev_dependencies:
   flutter_test:
