@@ -340,8 +340,8 @@ class HomeScreen extends ConsumerWidget {
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
             crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.1,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.2,
             children: [
               _buildActionCard(
                 context,
@@ -395,8 +395,22 @@ class HomeScreen extends ConsumerWidget {
                   }
                 },
               ),
+              _buildActionCard(
+                context,
+                Icons.payment,
+                'Pending Payments',
+                Colors.orange,
+                () {
+                  try {
+                    context.push('/pending-payments');
+                  } catch (e) {
+                    context.go('/pending-payments');
+                  }
+                },
+              ),
             ],
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -495,23 +509,24 @@ class HomeScreen extends ConsumerWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             color: color.withValues(alpha: 0.05),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 32),
+                child: Icon(icon, color: color, size: 28),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
                 label,
                 style: TextStyle(

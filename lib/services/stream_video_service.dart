@@ -19,22 +19,32 @@ class StreamVideoService {
 
     try {
       debugPrint('Step 1: Getting API key...');
-      String? apiKey;
+      String apiKey = '';
       
-      // Try dotenv first (local development), then environment variables (CI/CD)
-      if (dotenv.isInitialized) {
-        apiKey = dotenv.env['STREAM_API_KEY'];
-        debugPrint('Step 1: API key from dotenv (.env file), length: ${apiKey?.length ?? 0}');
+      // Priority 1: Try --dart-define (CI/CD builds)
+      apiKey = const String.fromEnvironment('STREAM_API_KEY');
+      if (apiKey.isNotEmpty) {
+        debugPrint('Step 1: API key from --dart-define (CI/CD), length: ${apiKey.length}');
       }
       
-      // Fall back to environment variables (for CI/CD - GitHub Actions secrets)
-      if (apiKey == null || apiKey.isEmpty) {
-        apiKey = Platform.environment['STREAM_API_KEY'];
-        debugPrint('Step 1: API key from environment variable (CI/CD), length: ${apiKey?.length ?? 0}');
+      // Priority 2: Try dotenv (local dev with .env file)
+      if (apiKey.isEmpty && dotenv.isInitialized) {
+        apiKey = dotenv.env['STREAM_API_KEY'] ?? '';
+        if (apiKey.isNotEmpty) {
+          debugPrint('Step 1: API key from dotenv (.env file), length: ${apiKey.length}');
+        }
       }
       
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('STREAM_API_KEY not found. For local dev: check .env file. For CI/CD: check GitHub Actions secrets.');
+      // Priority 3: Fall back to system environment variable (local dev fallback)
+      if (apiKey.isEmpty) {
+        apiKey = Platform.environment['STREAM_API_KEY'] ?? '';
+        if (apiKey.isNotEmpty) {
+          debugPrint('Step 1: API key from environment variable (local fallback), length: ${apiKey.length}');
+        }
+      }
+      
+      if (apiKey.isEmpty) {
+        throw Exception('STREAM_API_KEY not found. For local dev: check .env file. For CI/CD: set as GitHub secret and use --dart-define.');
       }
       debugPrint('Step 1: ✓ API key found (length: ${apiKey.length})');
 

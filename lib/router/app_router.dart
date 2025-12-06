@@ -20,6 +20,8 @@ import '../screens/shared/report_details_screen.dart';
 import '../screens/doctor/create_prescription_screen.dart';
 import '../screens/patient/patient_prescriptions_screen.dart';
 import '../screens/shared/prescription_details_screen.dart';
+import '../screens/patient/pending_payments_screen.dart';
+import '../screens/patient/payment_screen.dart';
 import '../screens/doctor/doctor_patients_screen.dart';
 import '../screens/patient/patient_waiting_room_screen.dart';
 import '../screens/doctor/doctor_waiting_room_screen.dart';
@@ -219,6 +221,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/patient-prescriptions',
         name: 'patient-prescriptions',
         builder: (context, state) => const PatientPrescriptionsScreen(),
+      ),
+      GoRoute(
+        path: '/pending-payments',
+        name: 'pending-payments',
+        builder: (context, state) => const PendingPaymentsScreen(),
+      ),
+      GoRoute(
+        path: '/payment/:appointmentId',
+        name: 'payment',
+        builder: (context, state) {
+          final appointmentId = state.pathParameters['appointmentId']!;
+          return PaymentScreen(appointmentId: appointmentId);
+        },
       ),
       GoRoute(
         path: '/patient-waiting-room/:appointmentId',

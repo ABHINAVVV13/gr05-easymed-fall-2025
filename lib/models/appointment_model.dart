@@ -39,6 +39,9 @@ class AppointmentModel {
   // Waiting room fields
   final DateTime? waitingRoomJoinedAt;
   final DateTime? waitingRoomLeftAt;
+  // Payment fields
+  final String? paymentId; // Reference to payment document
+  final bool isPaid; // Payment status
 
   AppointmentModel({
     required this.id,
@@ -60,6 +63,8 @@ class AppointmentModel {
     this.updatedAt,
     this.waitingRoomJoinedAt,
     this.waitingRoomLeftAt,
+    this.paymentId,
+    this.isPaid = false, // Default to unpaid
   });
 
   Map<String, dynamic> toMap() {
@@ -83,6 +88,8 @@ class AppointmentModel {
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
       'waitingRoomJoinedAt': waitingRoomJoinedAt != null ? Timestamp.fromDate(waitingRoomJoinedAt!) : null,
       'waitingRoomLeftAt': waitingRoomLeftAt != null ? Timestamp.fromDate(waitingRoomLeftAt!) : null,
+      'paymentId': paymentId,
+      'isPaid': isPaid,
     };
   }
 
@@ -128,6 +135,8 @@ class AppointmentModel {
       waitingRoomLeftAt: map['waitingRoomLeftAt'] != null
           ? (map['waitingRoomLeftAt'] as Timestamp).toDate()
           : null,
+      paymentId: map['paymentId'] as String?,
+      isPaid: map['isPaid'] as bool? ?? false,
     );
   }
 
@@ -151,6 +160,8 @@ class AppointmentModel {
     DateTime? updatedAt,
     DateTime? waitingRoomJoinedAt,
     DateTime? waitingRoomLeftAt,
+    String? paymentId,
+    bool? isPaid,
   }) {
     return AppointmentModel(
       id: id ?? this.id,
@@ -172,6 +183,8 @@ class AppointmentModel {
       updatedAt: updatedAt ?? this.updatedAt,
       waitingRoomJoinedAt: waitingRoomJoinedAt ?? this.waitingRoomJoinedAt,
       waitingRoomLeftAt: waitingRoomLeftAt ?? this.waitingRoomLeftAt,
+      paymentId: paymentId ?? this.paymentId,
+      isPaid: isPaid ?? this.isPaid,
     );
   }
 }

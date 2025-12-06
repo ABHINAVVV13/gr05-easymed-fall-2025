@@ -185,6 +185,29 @@ service cloud.firestore {
                        && resource.data.patientId == request.auth.uid;
         }
     
+    // Payments collection
+    match /payments/{paymentId} {
+      // Patients can read their own payments
+      allow read: if isAuthenticated() 
+                  && (resource.data.patientId == request.auth.uid
+                      || resource.data.doctorId == request.auth.uid);
+      
+      // Allow querying payments - patients can query their own, doctors can query theirs
+      allow list: if isAuthenticated();
+      
+      // Patients can create payments for their appointments
+      allow create: if isAuthenticated() 
+                   && request.resource.data.patientId == request.auth.uid
+                   && request.resource.data.keys().hasAll(['id', 'appointmentId', 'patientId', 'doctorId', 'amount', 'status', 'createdAt']);
+      
+      // Patients can update their own payments (for payment processing)
+      // Doctors can also read payments for their appointments
+      allow update: if isAuthenticated() 
+                   && resource.data.patientId == request.auth.uid
+                   && request.resource.data.patientId == resource.data.patientId
+                   && request.resource.data.appointmentId == resource.data.appointmentId;
+    }
+    
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;

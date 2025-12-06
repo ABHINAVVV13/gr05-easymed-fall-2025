@@ -35,7 +35,18 @@ jobs:
       run: flutter pub get
     
     - name: Build Android Release APK
-      run: flutter build apk --release
+      run: |
+        flutter build apk --release \
+          --dart-define=STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }} \
+          --dart-define=STREAM_API_KEY=${{ secrets.STREAM_API_KEY }} \
+          --dart-define=STREAM_APP_ID=${{ secrets.STREAM_APP_ID }}
+      env:
+        # Environment variables for the build process
+        # Add more variables here if your app needs them
+        # Make sure to also add them as --dart-define flags above
+        STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        STREAM_API_KEY: ${{ secrets.STREAM_API_KEY }}
+        STREAM_APP_ID: ${{ secrets.STREAM_APP_ID }}
     
     - name: Set up Firebase CLI
       run: npm install -g firebase-tools
