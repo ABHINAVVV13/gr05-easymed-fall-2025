@@ -3,8 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_linux
   desktop_webview_auth
   file_selector_linux
+  flutter_sound
   gtk
   printing
   stream_webrtc_flutter

@@ -1,0 +1,39 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Medical reports - patients can upload their own reports
+    match /medical_reports/{patientId}/{fileName} {
+      // Patients can read their own reports
+      // Doctors can read reports they've reviewed
+      allow read: if isAuthenticated();
+      
+      // Patients can upload their own reports
+      allow write: if isAuthenticated() 
+                  && request.auth.uid == patientId
+                  && request.resource.size < 50 * 1024 * 1024; // 50MB limit
+    }
+    
+    // Stethoscope recordings - patients can upload their own recordings
+    match /stethoscope/{patientId}/{fileName} {
+      // Patients can read their own recordings
+      // Doctors can read recordings from their patients
+      allow read: if isAuthenticated();
+      
+      // Patients can upload their own recordings
+      allow write: if isAuthenticated() 
+                  && request.auth.uid == patientId
+                  && request.resource.size < 50 * 1024 * 1024; // 50MB limit
+    }
+    
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

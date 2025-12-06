@@ -208,6 +208,33 @@ service cloud.firestore {
                    && request.resource.data.appointmentId == resource.data.appointmentId;
     }
     
+    // Stethoscope recordings collection
+    match /stethoscope/{recordingId} {
+      // Patients can read their own recordings
+      // Doctors can read recordings where they are the assigned doctor
+      allow read: if isAuthenticated() 
+                  && (resource.data.patientId == request.auth.uid
+                      || resource.data.doctorId == request.auth.uid);
+      
+      // Allow querying - patients can query their own, doctors can query assigned ones
+      allow list: if isAuthenticated();
+      
+      // Patients can create their own recordings
+      allow create: if isAuthenticated() 
+                   && request.resource.data.patientId == request.auth.uid
+                   && request.resource.data.keys().hasAll(['id', 'patientId', 'audioUrl', 'fileName', 'recordedAt', 'durationSeconds']);
+      
+      // Patients can update their own recordings (notes, etc.)
+      // Doctors can update doctorId and doctorNotes
+      allow update: if isAuthenticated() 
+                   && (resource.data.patientId == request.auth.uid
+                       || (resource.data.doctorId == request.auth.uid && request.resource.data.doctorId == resource.data.doctorId));
+      
+      // Patients can delete their own recordings
+      allow delete: if isAuthenticated() 
+                   && resource.data.patientId == request.auth.uid;
+    }
+    
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;

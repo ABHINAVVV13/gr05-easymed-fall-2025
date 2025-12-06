@@ -22,7 +22,9 @@ import '../screens/patient/patient_prescriptions_screen.dart';
 import '../screens/shared/prescription_details_screen.dart';
 import '../screens/patient/pending_payments_screen.dart';
 import '../screens/patient/payment_screen.dart';
+import '../screens/patient/patient_stethoscope_screen.dart';
 import '../screens/doctor/doctor_patients_screen.dart';
+import '../screens/doctor/doctor_stethoscope_screen.dart';
 import '../screens/patient/patient_waiting_room_screen.dart';
 import '../screens/doctor/doctor_waiting_room_screen.dart';
 import '../screens/shared/video_call_screen.dart';
@@ -236,6 +238,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/patient-stethoscope',
+        name: 'patient-stethoscope',
+        builder: (context, state) => const PatientStethoscopeScreen(),
+      ),
+      GoRoute(
         path: '/patient-waiting-room/:appointmentId',
         name: 'patient-waiting-room',
         builder: (context, state) {
@@ -282,6 +289,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             patientId: patientId,
           );
         },
+      ),
+      GoRoute(
+        path: '/doctor-stethoscope',
+        name: 'doctor-stethoscope',
+        builder: (context, state) => const DoctorStethoscopeScreen(),
       ),
       // Shared routes
       GoRoute(
