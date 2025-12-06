@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  audioplayers_windows
   battery_plus
   cloud_firestore
   connectivity_plus
@@ -12,6 +13,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_auth
   firebase_core
   firebase_storage
+  flutter_sound
   permission_handler_windows
   printing
   share_plus
