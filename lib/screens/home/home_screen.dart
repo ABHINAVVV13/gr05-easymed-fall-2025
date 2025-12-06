@@ -408,6 +408,19 @@ class HomeScreen extends ConsumerWidget {
                   }
                 },
               ),
+              _buildActionCard(
+                context,
+                Icons.hearing,
+                'Stethoscope',
+                Colors.red,
+                () {
+                  try {
+                    context.push('/patient-stethoscope');
+                  } catch (e) {
+                    context.go('/patient-stethoscope');
+                  }
+                },
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -828,6 +841,19 @@ class HomeScreen extends ConsumerWidget {
                     context.push('/doctor-patients');
                   } catch (e) {
                     context.go('/doctor-patients');
+                  }
+                },
+              ),
+              _buildActionCard(
+                context,
+                Icons.hearing,
+                'View Stethoscope',
+                Colors.red,
+                () {
+                  try {
+                    context.push('/doctor-stethoscope');
+                  } catch (e) {
+                    context.go('/doctor-stethoscope');
                   }
                 },
               ),
