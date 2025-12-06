@@ -32,6 +32,7 @@ dependencies:
   printing: ^5.10.0
   share_plus: ^12.0.1
   path_provider: ^2.1.2
+  flutter_stripe: ^11.1.0
 
 dev_dependencies:
   flutter_test:
@@ -40,7 +41,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # .env is included for local development only
-  # In CI/CD, use GitHub Actions secrets (environment variables)
-  assets:
-    - .env
+  # assets:
+  #   - .env
+  # .env file is NOT included in assets to avoid CI/CD build failures
+  # Local dev: Create .env file manually in project root
+  # CI/CD: Use GitHub Actions secrets (environment variables)
+  # The code handles both cases automatically
