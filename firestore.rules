@@ -239,6 +239,25 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() 
+                  && resource.data.userId == request.auth.uid;
+      
+      // Only system can create notifications (via Cloud Functions)
+      allow create: if false;
+      
+      // Users can update their own notifications (mark as read, delete)
+      allow update: if isAuthenticated() 
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId;
+      
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() 
+                    && resource.data.userId == request.auth.uid;
+    }
   }
 }
 

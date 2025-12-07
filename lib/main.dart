@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -7,6 +8,7 @@ import 'dart:io';
 import 'firebase_options.dart';
 import 'router/app_router.dart';
 import 'services/payment_service.dart';
+import 'services/notification_service.dart' show NotificationService, firebaseMessagingBackgroundHandler;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +37,16 @@ void main() async {
     debugPrint('✓ Stripe initialized');
   } catch (e) {
     debugPrint('⚠ Stripe initialization failed: $e');
+  }
+  
+  // Initialize Firebase Messaging
+  try {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    debugPrint('✓ Notifications initialized');
+  } catch (e) {
+    debugPrint('⚠ Notification initialization failed: $e');
   }
   
   runApp(

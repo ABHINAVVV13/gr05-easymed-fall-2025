@@ -112,3 +112,65 @@ exports.confirmPayment = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', 'Failed to confirm payment: ' + error.message);
   }
 });
+
+// Send push notification
+exports.sendPushNotification = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { userId, title, body, data: notificationData } = data;
+
+  if (!userId || !title || !body) {
+    throw new functions.https.HttpsError('invalid-argument', 'UserId, title, and body are required');
+  }
+
+  try {
+    const db = admin.firestore();
+    
+    // Get user's FCM token
+    const userDoc = await db.collection('users').doc(userId).get();
+    const fcmToken = userDoc.data()?.fcmToken;
+
+    if (!fcmToken) {
+      console.log(`No FCM token found for user ${userId}`);
+      return { success: false, message: 'No FCM token found' };
+    }
+
+    // Send notification via FCM
+    const message = {
+      token: fcmToken,
+      notification: {
+        title: title,
+        body: body,
+      },
+      data: notificationData || {},
+      android: {
+        priority: 'high',
+        notification: {
+          sound: 'default',
+          channelId: 'easymed_notifications',
+        },
+      },
+      apns: {
+        payload: {
+          aps: {
+            sound: 'default',
+            badge: 1,
+          },
+        },
+      },
+    };
+
+    const response = await admin.messaging().send(message);
+    console.log('Successfully sent message:', response);
+
+    return { success: true, messageId: response };
+  } catch (error) {
+    console.error('Error sending push notification:', error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    throw new functions.https.HttpsError('internal', 'Failed to send push notification: ' + error.message);
+  }
+});
