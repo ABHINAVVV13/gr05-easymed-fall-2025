@@ -24,9 +24,9 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService();
 });
 
-final doctorStethoscopeRecordingsProvider = FutureProvider.family<List<StethoscopeModel>, String>((ref, doctorId) async {
+final doctorStethoscopeRecordingsProvider = StreamProvider.family<List<StethoscopeModel>, String>((ref, doctorId) {
   final service = ref.read(doctorStethoscopeServiceProvider);
-  return await service.getDoctorRecordings(doctorId);
+  return service.getDoctorRecordingsStream(doctorId);
 });
 
 class DoctorStethoscopeScreen extends ConsumerStatefulWidget {
