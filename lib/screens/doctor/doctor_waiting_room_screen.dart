@@ -6,6 +6,7 @@ import '../../models/user_model.dart';
 import '../../services/appointment_service.dart';
 import '../../services/auth_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 import 'package:intl/intl.dart';
 
 final appointmentServiceProvider = Provider<AppointmentService>((ref) {
@@ -375,6 +376,18 @@ class _WaitingPatientCard extends ConsumerWidget {
     try {
       final appointmentService = ref.read(appointmentServiceProvider);
       await appointmentService.updateAppointmentStatus(appointment.id, AppointmentStatus.inProgress);
+      
+      // Send notification to patient
+      try {
+        final notificationHelper = ref.read(notificationHelperProvider);
+        await notificationHelper.notifyAppointmentStarted(
+          appointmentId: appointment.id,
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+        );
+      } catch (e) {
+        debugPrint('Error sending appointment started notification: $e');
+      }
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

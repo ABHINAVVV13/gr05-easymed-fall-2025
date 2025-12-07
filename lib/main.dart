@@ -45,8 +45,17 @@ void main() async {
     final notificationService = NotificationService();
     await notificationService.initialize();
     debugPrint('✓ Notifications initialized');
+    
+    // Get and log FCM token for debugging
+    final token = await notificationService.messaging.getToken();
+    if (token != null) {
+      debugPrint('✓ FCM Token obtained: ${token.substring(0, 20)}...');
+    } else {
+      debugPrint('⚠ FCM Token is null - notifications may not work');
+    }
   } catch (e) {
     debugPrint('⚠ Notification initialization failed: $e');
+    debugPrint('⚠ Stack trace: ${StackTrace.current}');
   }
   
   runApp(

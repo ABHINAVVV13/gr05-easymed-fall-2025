@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 
 // Auth service provider
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -67,6 +69,27 @@ super(const AsyncValue.loading()) {
               _isManualError = false; // Clear flag on successful auth
               final userData = await _authService.getUserData(user.uid);
               state = AsyncValue.data(userData);
+              
+              // Save FCM token for the logged-in user
+              try {
+                final notificationService = NotificationService();
+                // Wait a bit for token to be ready, then try to get it
+                await Future.delayed(const Duration(milliseconds: 500));
+                var token = notificationService.fcmToken;
+                if (token == null) {
+                  // Try to get token directly
+                  token = await notificationService.messaging.getToken();
+                }
+                if (token != null) {
+                  await notificationService.saveFcmTokenForUser(user.uid, token);
+                  debugPrint('✓ FCM token saved for user ${user.uid}');
+                } else {
+                  debugPrint('⚠ FCM token is null for user ${user.uid}');
+                }
+              } catch (e) {
+                // Don't fail auth if token save fails
+                debugPrint('Error saving FCM token: $e');
+              }
             } catch (e, stackTrace) {
               state = AsyncValue.error(e, stackTrace);
             }
