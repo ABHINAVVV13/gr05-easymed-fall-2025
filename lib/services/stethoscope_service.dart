@@ -122,36 +122,51 @@ class StethoscopeService {
         .collection('appointments')
         .where('doctorId', isEqualTo: doctorId)
         .snapshots()
-        .asyncMap((appointmentsSnapshot) async {
+        .asyncExpand((appointmentsSnapshot) {
           final patientIds = appointmentsSnapshot.docs
               .map((doc) => doc.data()['patientId'] as String)
               .toSet()
               .toList();
           
           if (patientIds.isEmpty) {
-            return <StethoscopeModel>[];
+            return Stream.value(<StethoscopeModel>[]);
           }
           
-          // Get recordings from these patients (batched for Firestore 'in' limit)
-          final allRecordings = <StethoscopeModel>[];
-          
-          for (int i = 0; i < patientIds.length; i += 10) {
-            final batch = patientIds.skip(i).take(10).toList();
-            final snapshot = await _firestore
+          // Watch stethoscope collection for all patient IDs
+          // Since Firestore 'in' queries are limited to 10 items, we need to combine multiple streams
+          if (patientIds.length <= 10) {
+            // Single query if 10 or fewer patients
+            return _firestore
                 .collection('stethoscope')
-                .where('patientId', whereIn: batch)
+                .where('patientId', whereIn: patientIds)
                 .orderBy('recordedAt', descending: true)
-                .get();
-            
-            allRecordings.addAll(
-              snapshot.docs.map((doc) => StethoscopeModel.fromMap(doc.data())),
-            );
+                .snapshots()
+                .map((snapshot) {
+                  final recordings = snapshot.docs
+                      .map((doc) => StethoscopeModel.fromMap(doc.data()))
+                      .toList();
+                  // Sort by recordedAt descending
+                  recordings.sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
+                  return recordings;
+                });
+          } else {
+            // For more than 10 patients, watch all stethoscope recordings and filter
+            // This ensures real-time updates when new recordings are added
+            final patientIdsSet = patientIds.toSet();
+            return _firestore
+                .collection('stethoscope')
+                .orderBy('recordedAt', descending: true)
+                .snapshots()
+                .map((snapshot) {
+                  final recordings = snapshot.docs
+                      .map((doc) => StethoscopeModel.fromMap(doc.data()))
+                      .where((recording) => patientIdsSet.contains(recording.patientId))
+                      .toList();
+                  // Already sorted by orderBy, but ensure descending
+                  recordings.sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
+                  return recordings;
+                });
           }
-          
-          // Sort by recordedAt descending
-          allRecordings.sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
-          
-          return allRecordings;
         });
   }
 
