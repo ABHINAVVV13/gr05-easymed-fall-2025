@@ -6,6 +6,7 @@ import '../../models/appointment_model.dart';
 import '../../models/user_model.dart';
 import '../../services/appointment_service.dart';
 import '../../services/doctor_service.dart';
+import '../../providers/notification_provider.dart';
 import 'package:intl/intl.dart';
 
 final doctorServiceProvider = Provider<DoctorService>((ref) {
@@ -59,6 +60,19 @@ class _PatientWaitingRoomScreenState extends ConsumerState<PatientWaitingRoomScr
       
       if (appointment != null && appointment.waitingRoomJoinedAt == null) {
         await appointmentService.joinWaitingRoom(widget.appointmentId);
+        
+        // Send notification to doctor
+        try {
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyWaitingRoomJoined(
+            appointmentId: widget.appointmentId,
+            patientId: appointment.patientId,
+            doctorId: appointment.doctorId,
+          );
+        } catch (e) {
+          debugPrint('Error sending waiting room joined notification: $e');
+        }
+        
         setState(() {
           _joinedAt = DateTime.now();
         });
@@ -82,7 +96,24 @@ class _PatientWaitingRoomScreenState extends ConsumerState<PatientWaitingRoomScr
   Future<void> _leaveWaitingRoom() async {
     try {
       final appointmentService = ref.read(appointmentServiceProvider);
+      final appointment = await appointmentService.getAppointmentById(widget.appointmentId);
+      
       await appointmentService.leaveWaitingRoom(widget.appointmentId);
+      
+      // Send notification to doctor
+      if (appointment != null) {
+        try {
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyWaitingRoomLeft(
+            appointmentId: widget.appointmentId,
+            patientId: appointment.patientId,
+            doctorId: appointment.doctorId,
+          );
+        } catch (e) {
+          debugPrint('Error sending waiting room left notification: $e');
+        }
+      }
+      
       setState(() {
         _hasLeft = true;
       });

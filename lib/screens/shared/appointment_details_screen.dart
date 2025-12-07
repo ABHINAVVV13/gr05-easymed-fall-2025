@@ -8,6 +8,7 @@ import '../../services/appointment_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/doctor_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
@@ -709,6 +710,18 @@ class AppointmentDetailsScreen extends ConsumerWidget {
       final appointmentService = ref.read(appointmentServiceProvider);
       await appointmentService.cancelAppointment(appointment.id);
       
+      // Send notification
+      try {
+        final notificationHelper = ref.read(notificationHelperProvider);
+        await notificationHelper.notifyAppointmentCancelled(
+          appointmentId: appointment.id,
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+        );
+      } catch (e) {
+        debugPrint('Error sending cancellation notification: $e');
+      }
+      
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -735,6 +748,19 @@ class AppointmentDetailsScreen extends ConsumerWidget {
     try {
       final appointmentService = ref.read(appointmentServiceProvider);
       await appointmentService.updateAppointmentStatus(appointment.id, newStatus);
+      
+      // Send notification
+      try {
+        final notificationHelper = ref.read(notificationHelperProvider);
+        await notificationHelper.notifyAppointmentStatusChanged(
+          appointmentId: appointment.id,
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+          status: newStatus.name,
+        );
+      } catch (e) {
+        debugPrint('Error sending status change notification: $e');
+      }
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

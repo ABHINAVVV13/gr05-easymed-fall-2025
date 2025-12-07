@@ -2,17 +2,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/material.dart';
+import 'dart:io';
 import '../models/notification_model.dart';
 
 class NotificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseFunctions _functions = FirebaseFunctions.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   String? _fcmToken;
+  
+  // Expose messaging for token access
+  FirebaseMessaging get messaging => _messaging;
 
   /// Initialize FCM and request permissions
   Future<void> initialize() async {
     try {
+      // Initialize local notifications for foreground display
+      await _initializeLocalNotifications();
+
       // Request permission for notifications
       final settings = await _messaging.requestPermission(
         alert: true,
@@ -33,7 +43,17 @@ class NotificationService {
       // Get FCM token
       _fcmToken = await _messaging.getToken();
       if (_fcmToken != null) {
-        debugPrint('✓ FCM Token: $_fcmToken');
+        debugPrint('✓ FCM Token obtained: ${_fcmToken!.substring(0, 20)}...');
+        debugPrint('✓ Full FCM Token: $_fcmToken');
+      } else {
+        debugPrint('⚠ FCM Token is null - requesting again...');
+        await Future.delayed(const Duration(seconds: 1));
+        _fcmToken = await _messaging.getToken();
+        if (_fcmToken != null) {
+          debugPrint('✓ FCM Token obtained on retry: ${_fcmToken!.substring(0, 20)}...');
+        } else {
+          debugPrint('✗ FCM Token still null after retry');
+        }
       }
 
       // Listen for token refresh
@@ -43,13 +63,51 @@ class NotificationService {
         _saveFcmToken(newToken);
       });
 
-      // Handle foreground messages
+      // Handle foreground messages - show local notification
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-      // Handle background messages (when app is in background)
+      // Handle background messages (when app is opened from notification)
       FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
     } catch (e) {
       debugPrint('Error initializing notifications: $e');
+    }
+  }
+
+  /// Initialize local notifications plugin
+  Future<void> _initializeLocalNotifications() async {
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    
+    const initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _localNotifications.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        // Handle notification tap
+        debugPrint('Notification tapped: ${response.payload}');
+      },
+    );
+
+    // Create notification channel for Android
+    if (Platform.isAndroid) {
+      const androidChannel = AndroidNotificationChannel(
+        'easymed_notifications',
+        'EasyMed Notifications',
+        description: 'Notifications for appointments, messages, and updates',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+      );
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(androidChannel);
     }
   }
 
@@ -105,6 +163,8 @@ class NotificationService {
     Map<String, dynamic>? data,
   }) async {
     try {
+      debugPrint('📤 Sending notification to user $userId: $title');
+      
       // Create notification document in Firestore
       final notification = NotificationModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -120,21 +180,41 @@ class NotificationService {
           .collection('notifications')
           .doc(notification.id)
           .set(notification.toMap());
+      debugPrint('✓ Notification document created in Firestore');
+
+      // Check if user has FCM token
+      final userToken = await getFcmTokenForUser(userId);
+      if (userToken == null) {
+        debugPrint('⚠ No FCM token found for user $userId - notification will not be delivered');
+        debugPrint('⚠ Make sure user has logged in and granted notification permissions');
+      } else {
+        debugPrint('✓ FCM token found for user $userId');
+      }
 
       // Send push notification via Cloud Function
-      await _functions.httpsCallable('sendPushNotification').call({
-        'userId': userId,
-        'title': title,
-        'body': body,
-        'data': {
-          'type': type.name,
-          ...?data,
-        },
-      });
+      try {
+        debugPrint('📤 Calling Cloud Function sendPushNotification...');
+        final result = await _functions.httpsCallable('sendPushNotification').call({
+          'userId': userId,
+          'title': title,
+          'body': body,
+          'data': {
+            'type': type.name,
+            ...?data,
+          },
+        });
+        debugPrint('✓ Cloud Function called successfully');
+        debugPrint('✓ Cloud Function result: $result');
+      } catch (e) {
+        debugPrint('✗ Error calling Cloud Function: $e');
+        debugPrint('✗ Error details: ${e.toString()}');
+        // Don't rethrow - we still want the Firestore notification to be saved
+      }
 
-      debugPrint('✓ Notification sent to user $userId: $title');
+      debugPrint('✓ Notification process completed for user $userId: $title');
     } catch (e) {
-      debugPrint('Error sending notification: $e');
+      debugPrint('✗ Error sending notification: $e');
+      debugPrint('✗ Stack trace: ${StackTrace.current}');
     }
   }
 
@@ -209,10 +289,60 @@ class NotificationService {
     }
   }
 
-  /// Handle foreground messages
-  void _handleForegroundMessage(RemoteMessage message) {
+  /// Handle foreground messages - show local notification
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
     debugPrint('Foreground message received: ${message.notification?.title}');
-    // You can show a local notification or update UI here
+    
+    // Show local notification when app is in foreground
+    if (message.notification != null) {
+      await _showLocalNotification(
+        title: message.notification!.title ?? 'EasyMed',
+        body: message.notification!.body ?? '',
+        payload: message.data.toString(),
+      );
+    }
+  }
+
+  /// Show local notification
+  Future<void> _showLocalNotification({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        'easymed_notifications',
+        'EasyMed Notifications',
+        channelDescription: 'Notifications for appointments, messages, and updates',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+        playSound: true,
+        enableVibration: true,
+      );
+
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _localNotifications.show(
+        DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        title,
+        body,
+        details,
+        payload: payload,
+      );
+      debugPrint('✓ Local notification displayed: $title');
+    } catch (e) {
+      debugPrint('✗ Error showing local notification: $e');
+    }
   }
 
   /// Handle background messages (when app is opened from notification)

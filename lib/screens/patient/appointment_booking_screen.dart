@@ -7,6 +7,7 @@ import '../../services/appointment_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/symptom_questionnaire_widget.dart';
 import '../../services/doctor_service.dart';
+import '../../providers/notification_provider.dart';
 
 final appointmentServiceProvider = Provider<AppointmentService>((ref) {
   return AppointmentService();
@@ -300,6 +301,19 @@ class _AppointmentBookingScreenState
 
       await appointmentService.createAppointment(appointment);
 
+      // Send notification to doctor
+      try {
+        final notificationHelper = ref.read(notificationHelperProvider);
+        await notificationHelper.notifyAppointmentBooked(
+          appointmentId: appointment.id,
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+          scheduledTime: appointment.scheduledTime,
+        );
+      } catch (e) {
+        debugPrint('Error sending appointment notification: $e');
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -370,6 +384,27 @@ class _AppointmentBookingScreenState
       );
 
       await appointmentService.createAppointment(appointment);
+
+      // Join waiting room
+      await appointmentService.joinWaitingRoom(appointment.id);
+
+      // Send notifications
+      try {
+        final notificationHelper = ref.read(notificationHelperProvider);
+        await notificationHelper.notifyAppointmentBooked(
+          appointmentId: appointment.id,
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+          scheduledTime: appointment.scheduledTime,
+        );
+        await notificationHelper.notifyWaitingRoomJoined(
+          appointmentId: appointment.id,
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+        );
+      } catch (e) {
+        debugPrint('Error sending notification: $e');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
