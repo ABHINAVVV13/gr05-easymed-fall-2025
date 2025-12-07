@@ -6,6 +6,7 @@ import '../../models/user_model.dart';
 import '../../services/chat_service.dart';
 import '../../services/appointment_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
@@ -91,13 +92,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     try {
       final chatService = ref.read(chatServiceProvider);
+      final senderName = currentUser.displayName ?? 
+          (currentUser.userType == UserType.patient ? 'Patient' : 'Doctor');
+      
       await chatService.sendMessage(
         appointmentId: widget.appointmentId,
         senderId: currentUser.uid,
-        senderName: currentUser.displayName ?? 
-            (currentUser.userType == UserType.patient ? 'Patient' : 'Doctor'),
+        senderName: senderName,
         message: _messageController.text.trim(),
       );
+
+      // Send notification to recipient
+      try {
+        final appointmentService = ref.read(appointmentServiceProvider);
+        final appointment = await appointmentService.getAppointmentById(widget.appointmentId);
+        if (appointment != null) {
+          final recipientId = currentUser.uid == appointment.patientId 
+              ? appointment.doctorId 
+              : appointment.patientId;
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyNewMessage(
+            appointmentId: widget.appointmentId,
+            senderId: currentUser.uid,
+            recipientId: recipientId,
+            senderName: senderName,
+            message: _messageController.text.trim(),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error sending chat notification: $e');
+      }
 
       _messageController.clear();
       

@@ -12,6 +12,8 @@ import '../../models/medical_report_model.dart';
 import '../../services/medical_report_service.dart';
 import '../../services/pdf_export_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
+import '../../services/appointment_service.dart';
 
 final medicalReportServiceProvider = Provider<MedicalReportService>(
   (ref) => MedicalReportService(),
@@ -20,6 +22,10 @@ final medicalReportServiceProvider = Provider<MedicalReportService>(
 final pdfExportServiceProvider = Provider<PdfExportService>(
   (ref) => PdfExportService(),
 );
+
+final appointmentServiceProvider = Provider<AppointmentService>((ref) {
+  return AppointmentService();
+});
 
 final patientReportsProvider = StreamProvider<List<MedicalReportModel>>((ref) {
   final currentUser = ref.watch(authStateNotifierProvider).value;
@@ -203,6 +209,23 @@ class _MedicalReportsScreenState extends ConsumerState<MedicalReportsScreen> {
       );
 
       await reportService.createReport(report);
+
+      // Send notification to doctor (get from most recent appointment)
+      try {
+        final appointmentService = ref.read(appointmentServiceProvider);
+        final appointments = await appointmentService.getPatientAppointments(currentUser.uid);
+        if (appointments.isNotEmpty) {
+          final recentAppointment = appointments.first;
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyMedicalReportUploaded(
+            reportId: report.id,
+            patientId: currentUser.uid,
+            doctorId: recentAppointment.doctorId,
+          );
+        }
+      } catch (e) {
+        debugPrint('Error sending medical report notification: $e');
+      }
 
       if (mounted) {
         setState(() => _isUploading = false);

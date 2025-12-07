@@ -6,6 +6,7 @@ import '../../models/appointment_model.dart';
 import '../../services/prescription_service.dart';
 import '../../services/appointment_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/doctor_service.dart';
 import '../../models/user_model.dart';
@@ -167,6 +168,19 @@ class _CreatePrescriptionScreenState
       );
 
       await prescriptionService.createPrescription(prescription);
+
+      // Send notification to patient
+      try {
+        final notificationHelper = ref.read(notificationHelperProvider);
+        await notificationHelper.notifyPrescriptionCreated(
+          prescriptionId: prescription.id,
+          appointmentId: prescription.appointmentId ?? '',
+          patientId: patientId,
+          doctorId: currentUser.uid,
+        );
+      } catch (e) {
+        debugPrint('Error sending prescription notification: $e');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -14,12 +14,18 @@ import 'package:intl/intl.dart';
 import '../../models/stethoscope_model.dart';
 import '../../services/stethoscope_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../widgets/ecg_widget.dart';
 import '../../widgets/stethoscope_playback_dialog.dart';
 import '../../services/audio_device_service.dart';
+import '../../services/appointment_service.dart';
 
 final stethoscopeServiceProvider = Provider<StethoscopeService>((ref) {
   return StethoscopeService();
+});
+
+final appointmentServiceProvider = Provider<AppointmentService>((ref) {
+  return AppointmentService();
 });
 
 final patientRecordingsProvider = StreamProvider.family<List<StethoscopeModel>, String>((ref, patientId) {
@@ -613,6 +619,23 @@ class _PatientStethoscopeScreenState extends ConsumerState<PatientStethoscopeScr
       );
 
       await service.createRecording(recording);
+
+      // Send notification to doctor (get from most recent appointment)
+      try {
+        final appointmentService = ref.read(appointmentServiceProvider);
+        final appointments = await appointmentService.getPatientAppointments(currentUser.uid);
+        if (appointments.isNotEmpty) {
+          final recentAppointment = appointments.first;
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyStethoscopeUploaded(
+            recordingId: recording.id,
+            patientId: currentUser.uid,
+            doctorId: recentAppointment.doctorId,
+          );
+        }
+      } catch (e) {
+        debugPrint('Error sending stethoscope notification: $e');
+      }
 
       if (mounted) {
         Navigator.pop(context); // Close loading dialog

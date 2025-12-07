@@ -8,6 +8,7 @@ import '../../services/appointment_service.dart';
 import '../../services/payment_service.dart';
 import '../../services/doctor_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 import 'package:intl/intl.dart';
 
 final appointmentServiceProvider = Provider<AppointmentService>((ref) {
@@ -47,6 +48,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       _isProcessing = true;
     });
 
+    PaymentModel? payment;
     try {
       final paymentService = ref.read(paymentServiceProvider);
       final appointment = await ref.read(appointmentServiceProvider).getAppointmentById(widget.appointmentId);
@@ -66,7 +68,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       }
 
       // Check if payment already exists
-      var payment = await paymentService.getPaymentByAppointment(widget.appointmentId);
+      payment = await paymentService.getPaymentByAppointment(widget.appointmentId);
       
       if (payment == null) {
         // Create new payment with Stripe Payment Intent
@@ -81,6 +83,19 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           doctorId: appointment.doctorId,
           amount: doctor.consultationFee!,
         );
+        
+        // Send notification for payment created
+        try {
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyPaymentCreated(
+            paymentId: payment.id,
+            appointmentId: widget.appointmentId,
+            patientId: currentUser.uid,
+            amount: doctor.consultationFee!,
+          );
+        } catch (e) {
+          debugPrint('Error sending payment created notification: $e');
+        }
       }
 
       // Update payment status to processing
@@ -95,6 +110,23 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         paymentId: payment.id,
         clientSecret: payment.stripeClientSecret!,
       );
+
+      // Send notification for payment completed
+      try {
+        final currentUserForNotification = ref.read(authStateNotifierProvider).value;
+        if (currentUserForNotification != null) {
+          final notificationHelper = ref.read(notificationHelperProvider);
+          await notificationHelper.notifyPaymentCompleted(
+            paymentId: payment.id,
+            appointmentId: widget.appointmentId,
+            patientId: currentUserForNotification.uid,
+            doctorId: appointment.doctorId,
+            amount: payment.amount,
+          );
+        }
+      } catch (e) {
+        debugPrint('Error sending payment completed notification: $e');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -114,6 +146,21 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       if (errorString.contains('canceled') || errorString.contains('Canceled')) {
         errorMessage = 'Payment was canceled';
       } else if (errorString.contains('Payment failed:')) {
+        // Send notification for payment failed
+        try {
+          final currentUserForNotification = ref.read(authStateNotifierProvider).value;
+          if (currentUserForNotification != null && payment != null) {
+            final notificationHelper = ref.read(notificationHelperProvider);
+            await notificationHelper.notifyPaymentFailed(
+              paymentId: payment.id,
+              appointmentId: widget.appointmentId,
+              patientId: currentUserForNotification.uid,
+            );
+          }
+        } catch (e) {
+          debugPrint('Error sending payment failed notification: $e');
+        }
+        
         // Extract message after "Payment failed:"
         final match = RegExp(r'Payment failed:\s*(.+)').firstMatch(errorString);
         if (match != null) {
